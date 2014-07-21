@@ -128,7 +128,21 @@ http://maps.gstatic.com/cat_js/intl/en_gb/mapfiles/api-3/17/8/%7Bcommon,map,util
 http://maps.gstatic.com/cat_js/intl/en_gb/mapfiles/api-3/17/8/%7Binfowindow%7D.js
 http://maps.gstatic.com/cat_js/intl/en_gb/mapfiles/api-3/17/8/%7Bstats%7D.js
 http://maps.gstatic.com/cat_js/intl/en_gb/mapfiles/api-3/17/8/%7Bmap,marker%7D.js
-#
+
+
+http://maps.gstatic.com/
+http://maps.google.com/
+http://maps.googleapis.com/
+http://mt0.googleapis.com/
+http://mt1.googleapis.com/
+http://mt2.googleapis.com/
+http://mt3.googleapis.com/
+http://khm0.googleapis.com/
+http://khm1.googleapis.com/
+http://cbk0.googleapis.com/
+http://cbk1.googleapis.com/
+http://www.google-analytics.com/
+http://gg.google.com/
 
 http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js
 
