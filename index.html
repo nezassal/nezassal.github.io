@@ -1,1 +1,4031 @@
-Hello World
+<!DOCTYPE html> 
+<html manifest="manifest.appcache"> 
+<head> 
+    <title>Geo-Asset collection HTML5 app</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.0.min.css" />
+    <link rel="stylesheet" href="themes/custom_theme.css" />
+    <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+	
+
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/jquery.mobile-1.4.0.min.js"></script>
+	<script src="//maps.googleapis.com/maps/api/js?key=AIzaSyB5Rhvf973ZkSxuS3lWDDAJuKgHjtpoLCA&sensor=true" type="text/javascript"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js" type="text/javascript"></script>
+	<script src="js/markerwithlabel.js" type="text/javascript"></script>
+
+	
+	<style type="text/css">
+		#mapPage, #mapDiv { width: 100%; height: 100%; padding: 0;}
+
+	   .labels {
+			 color: red;
+			 background-color: white;
+			 font-family: "Lucida Grande", "Arial", sans-serif;
+			 font-size: 10px;
+			 font-weight: bold;
+			 text-align: center;
+			 width: 100px;     
+			 border: thin solid black;
+			 white-space: nowrap;
+			 }		
+		
+	</style>
+	
+</head> 
+
+
+<body> 
+
+<!-- Start of first page: front_page -->
+<div data-role="page" id="front_page" data-theme="a">
+
+	<div data-role="header">
+		<h1></h1>
+		<a href="#" data-icon="gear" class="ui-btn-right" id="btn_goto_admin" data-params='{"goto": "0"}'>Admin</a>
+
+	</div><!-- /header -->
+
+	<div data-role="content">	
+			<!-- each list item below should have callback which sets global var with depending on which app behaves -->
+			<ul data-role="listview">
+				<li data-role="list-divider">Add new items</li>
+    			<li><a href="#" id="li_new_from_gps" data-params='{"goto": "0"}'>Position from GPS</a></li>
+				<li><a href="#"  id="li_new_from_map" data-params='{"goto": "0"}'>Position from Map</a></li>
+				<li data-role="list-divider">Edit existing items</li>
+				<li><a href="#"  id="li_existing_search_db" data-params='{"goto": "0"}'>Search database</a></li>
+				<li><a href="#" id="li_existing_search_map" data-params='{"goto": "0"}'>Search map</a></li>
+			</ul>
+
+
+
+	</div><!-- /content -->
+
+
+</div><!--  /page -->
+
+
+<!-- Start of 'itemsList' page -->
+<!-- This is generic page to display list of:
+	-most recent items
+	-db search results
+	-geo-code search results 
+	content of this page changes programmatcally depending where is been launched from
+-->
+<div data-role="page" id="itemsList">
+
+	<div data-role="header">
+		<h1></h1>
+		<a href="#"  data-icon="home" class="ui-btn-left" data-iconpos="notext" id="itemsList_HeaderButton" data-params='{"goto": "0"}'></a>
+
+	</div><!-- /header -->
+
+
+			<!-- content probably will be dynamicaly built depending on where this page has been accessed from -->
+	<div data-role="content">	
+
+			<div id="items_search_div">
+				<ul id="items_search" data-role="listview" data-inset="true" data-filter="true" data-filter-placeholder="Search DB..." data-filter-theme="a" data-params='{}'></ul>
+			</div>
+			<div id="items_search1_div">
+				<input type="search" name="search" id="items_search_input" value="">
+				<ul id="items_search1" data-role="listview" data-inset="true" data-params='{}'></ul>
+			</div>
+
+			<ul data-role="listview" data-inset="true" id="itemsList_list_ul"></ul>
+	</div><!-- /content -->
+
+
+</div><!-- 'itemsList'  /page -->
+
+<!-- Start of 'mapPage' page -->
+<div data-role="page" id="mapPage">
+
+	<div data-role="header" >
+		
+		<h1></h1>
+		<a href='#'  data-role='button' class='ui-btn-left' data-icon='home' data-iconpos='notext' data-params='{"goto": "0"}' id='map_back_button'></a>
+		<!-- <a href='#'  data-icon='check' class='ui-btn-right' id='btn_map_set_postion' data-params='{"goto": "0"}'>Set position</a> --->
+		<div  class="ui-btn-right">
+			<a href='#' data-role='button' id='btn_panToGPS'>pan to GPS</a>
+			<a href='#itemsList' data-role='button' data-icon='search' id='btn_mapSearch' data-params='{"goto": "0"}' >search Map</a>
+		</div>
+	
+	</div><!-- /header -->
+
+
+			<!-- content probably will be dynamicaly built depending on where this page has been accessed from -->
+	<div data-role="content">	
+		
+		<!-- <strong id='map_geoposition'>GPS position: </strong>  -->
+		<!-- <input type="button" id="map_geoposition" name="map_geoposition" value="GPS position: ">  -->
+		<!-- <input type="text" name="map_geoposition" id="map_geoposition" placeholder="GPS position: " value="" data-mini="true" disabled=true> -->
+		 <textarea name="map_geoposition" id="map_geoposition" disabled=true></textarea>
+		<div id="mapDiv"></div>
+		
+
+	</div><!-- /content -->
+
+
+</div><!-- mapPage  /page -->
+
+
+<!-- Start of 'theItem' page -->
+<div data-role='page' id='theItem'>
+
+	<div data-role="header">
+		<h1 id="theItemPage_title">item</h1>
+		<a href="#"  data-icon="back" class="ui-btn-left" data-iconpos="notext" id="theItem_header_button" data-params='{"goto": "0"}'></a>
+        <a href="#"  data-icon="minus" class="ui-btn-right" id="btn_ii_delete" data-params='{"goto": "0"}'>Delete</a>
+
+
+
+	</div><!-- /header -->
+
+	<div data-role="content" id='theItem_content_div'>
+	</div>
+	
+	<!-- /content -->
+
+</div><!-- theItem  /page -->
+
+
+<!-- Start of page: admin_front-page -->
+<div data-role="page" id="admin_front-page">
+
+	<div data-role="header">
+		<h1>Admin</h1>
+		<a href="#"  data-icon="home" class="ui-btn-left" data-iconpos="notext" id='btn_back_from_admin' data-params='{"goto": "0"}'></a>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+			<!-- each list item below should have callback which sets global var with depending on which app behaves -->
+
+			<ul data-role="listview">
+				<li><a href="#" id="li_item_attributes" data-params='{"goto": "0"}'>Manage item attributes</a></li>
+				<li><a href="#" id="li_export_db" data-params='{"goto": "0"}' download='my.csv'>Export database</a></li>
+				<li><a href="#delete_db_dialogue" id="li_delete_db" data-params='{"goto": "0"}' data-rel='dialog'>Delete database</a></li>
+				<li><a href="#" id="li_fillDummies_db">Append 1000 dummy items to database</a></li>
+			</ul>	
+
+
+
+
+	</div><!-- /content -->
+
+
+</div><!--  /page: admin_front-page -->
+
+
+<!-- Start of 'theAttribute' page -->
+<div data-role="dialog" id="theAttribute">
+
+	<div data-role="header">
+		<h1>attribute</h1>
+		<a href="#"  data-icon="minus" class="ui-btn-right" id="btn_theAttribute_delete" data-params='{"goto": "0"}'>Delete</a>
+
+	</div><!-- /header -->
+
+
+
+	<div data-role="content">	
+
+
+		<label for="AttrName">attribute name:</label>
+		<input type="text" name="Attr_Name" id="AttrName" value=""  />
+
+
+
+		<label for="DataType_" class="select">data type:</label>
+		<select name="DataType_" id="DataType_">
+			<option value="text">text</option>
+			<option value="number">number</option>
+			<option value="date">date</option>
+			<option value="time">time</option>
+			<option value="boolean">boolean</option>
+			<option value="lookup">lookup</option>
+		</select>
+
+
+		<fieldset data-role="controlgroup">
+			<legend>mandatory atrribute:</legend>
+			<input type="checkbox" name="mandatory_" id="mandatory_" class="custom" checked="true"/>
+			<label for="mandatory_">yes</label>
+		</fieldset>
+
+
+
+		<label for="attrOrder">atrribute order:</label>
+		<input type="number" name="attrOrder" id="attrOrder" value="" />
+
+
+
+		<label for="FrontEndAttrOrder">atrribute order for frontend:</label>
+		<input type="number" name="FrontEndAttrOrder" id="FrontEndAttrOrder" value="" />	
+						
+						
+		<div data-role="collapsible-set" data-inset="false" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d">
+			<div data-role="collapsible" data-collapsed="true"  data-iconpos="bottom">	
+				<h3>LOOKUP VALUES</h3>
+				<button type="button" data-icon="plus" data-inline="true" id="btn_add_new_LUV">Add new LU value</button>
+				
+				<div data-role="collapsible-set" data-inset="false" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" id="LUVs_container">
+				<!-- inside this div place divs for each lookup value -->
+					
+					
+				
+				
+				
+				</div>
+			</div>
+		</div>
+						
+						
+		<a href="#" data-role="button" data-inline="true" id="btn_theAttribute_OK" data-params='{"goto": "0"}'>Ok</a>       
+		<!-- <a href="admin_front-page" data-role="button" data-rel="back"  data-inline="true" id="b_theAttribute_DELETE">Delete</a> -->      
+		<a href="#" data-role="button" data-inline="true" id="btn_theAttribute_cancel" data-params='{"goto": "0"}'>Cancel</a>   
+
+
+	</div><!-- /content -->
+
+
+
+</div><!-- theAttribute  /page -->
+
+<!-- Start of page: attributes_list -->
+<div data-role="page" id="attributes_list">
+
+	<div data-role="header">
+		<h1></h1>
+		<a href="#"  data-icon="back" class="ui-btn-left" data-iconpos="notext" data-params='{"goto": "0"}' id='attr_list_back_btn'></a>
+		<a href="#"  data-icon="plus" class="ui-btn-right" data-params='{"goto": "0"}' id='attr_list_add_btn'>Add</a>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+			<!-- each list item below should have callback which sets global var with depending on which app behaves -->
+
+			<ul data-role="listview" id='ul_atrr_list'>
+			</ul>	
+
+
+
+
+	</div><!-- /content -->
+
+
+</div><!--  /page: attributes_list -->
+
+
+
+<!-- Start of 'the_lookup_item' page -->
+<div id="the_lookup_item" data-role="dialog">
+
+	<div data-role="header" >
+		<h1>Lookup item</h1>
+		<a href="#"  data-icon="minus" class="ui-btn-right" id="b_the_lookup_item_DELETE" data-params='{"goto": "0"}'>Delete</a>
+
+	</div><!-- /header -->
+
+
+
+	<div data-role="content">	
+
+
+					<label for="AttrName3">Lookup value:</label>
+					<input type="text" name="AttrName3" id="lookUpItem" value=""  />
+
+					
+					
+					<fieldset data-role="controlgroup">
+					   <legend>default value:</legend>
+					   <input type="checkbox" name="luv_default" id="luv_default" class="custom" checked="false"/>
+					   <label for="luv_default">yes</label>
+					</fieldset>					
+					
+					
+					
+					<label for="luv_order">value order:</label>
+					<input type="number" name="luv_order" id="luv_order" value="" />
+
+		<a href="#" data-role="button" data-inline="true" id="b_the_lookup_item_OK" data-params='{"goto": "0"}'>Ok</a>       
+		<!-- <a href="lookup_list" data-role="button" data-rel="back" data-inline="true" id="b_the_lookup_item_DELETE">Delete</a> -->
+		<a href="#" data-role="button" data-inline="true" id='b_the_lookup_item_cancel' data-params='{"goto": "0"}'>Cancel</a>   
+
+	</div><!-- /content -->
+
+
+
+</div><!-- the_lookup_item  /page -->
+
+
+
+
+<div data-role="page" id="delete_db_dialogue" data-role="dialog">
+  <div data-role="header">
+    <h2>delete database?</h2>
+  </div>
+ 
+     	<a href="#" data-role="button" data-inline="true" id="b_delete_db_dialogue_OK" data-rel='back'>Ok</a>       
+		<!-- <a href="lookup_list" data-role="button" data-rel="back" data-inline="true" id="b_the_lookup_item_DELETE">Delete</a> -->
+		<a href="#" data-role="button" data-inline="true" data-rel='back'>Cancel</a>  
+</div>
+
+<div data-role="page" id="export_db_dialogue" data-role="dialog">
+  <div data-role="header">
+    <h2>download csv file?</h2>
+  </div>
+ 
+         <a href="#" data-role="button" data-inline="true" id="b_export_db_dialogue_OK">Ok</a>       
+		
+        
+        <!-- <a href="lookup_list" data-role="button" data-rel="back" data-inline="true" id="b_the_lookup_item_DELETE">Delete</a> -->
+		<a href="#" data-role="button" data-inline="true" data-rel='back'>Cancel</a>  
+</div>
+
+</body>
+</html>
+
+
+<script id='myxml' type='text/xmldata'>
+
+<app> 
+	<form apppoint_id='0' selector='#front_page' descr='front page'> 
+			<code> 
+
+    			$('#btn_goto_admin').data('params').goto = '10';
+				$('#li_new_from_gps').data('params').goto = '11';
+				$('#li_existing_search_db').data('params').goto = '12';
+				$('#li_new_from_map').data('params').goto = '13';
+				$('#li_existing_search_map').data('params').goto = '14';
+				//navigator.geolocation.clearWatch(location_obj.wpid); // stop position tracking
+				//location_obj = {};
+				//$('#item_geoposition').text("");
+				//$('#map_geoposition').text("");
+
+
+			</code> 
+		<form apppoint_id='10' selector='#admin_front-page' descr='admin front page'> 
+			<code> 
+				$('#li_item_attributes').data('params').goto = '100';
+				$('#li_item_attributes').data('params').db_action = 'populate_list_of_attributes';
+				$('#li_export_db').data('params').goto = '102';
+				$('#li_delete_db').data('params').goto = '103';
+                $('#btn_back_from_admin').data('params').goto = '0';
+
+			</code> 
+
+							<form apppoint_id='100' selector='#attributes_list' descr='list of attributes'> 
+								<code>
+									$('#attr_list_back_btn').data('params').goto = '10';
+									$('#attr_list_add_btn').data('params').goto = '1001';
+									$('#attr_list_add_btn').show();
+
+								</code>
+									<form apppoint_id='1000' selector='#theAttribute' descr='attribute form to edit/ delete existing attribute'> 
+										<code>
+
+											$('#btn_theAttribute_delete').data('params').goto = '100';
+											$('#btn_theAttribute_delete').show();
+                                            $('#btn_theAttribute_delete').data('params').db_action = 'delete_existing_attribute_in_DB';
+											$('#btn_theAttribute_OK').data('params').goto = '100';
+                                            $('#btn_theAttribute_OK').data('params').db_action = 'save_existing_attribute_to_DB';
+											$('#btn_theAttribute_cancel').data('params').goto = '100';
+
+										</code>
+
+									</form> 
+
+									<form apppoint_id='1001' selector='#theAttribute' descr='attribute form to add new attribute'> 
+										<code>
+
+											$('#btn_theAttribute_delete').data('params').goto = '100';   
+											$('#btn_theAttribute_OK').data('params').goto = '100';
+                                            $('#btn_theAttribute_OK').data('params').db_action = 'save_new_attribute_to_DB';
+											$('#btn_theAttribute_cancel').data('params').goto = '100';
+											$('#btn_theAttribute_delete').hide();
+											fn_clear_attribute_form();
+
+										</code>
+
+									</form> 							
+
+							</form> 
+
+
+							<form apppoint_id='102' selector='#export_db' descr='export databse form'> 
+								<code>
+
+
+								</code>
+
+							</form>
+							<form apppoint_id='103' selector='#delete_db' descr='delete database form'> 
+								<code>
+
+
+								</code>
+
+							</form> 
+
+		</form> 
+
+		<form apppoint_id='11' selector='#itemsList' descr='itemlist form with list of most recent items. Position comes from GPS'> 
+			<code> 
+                $('#itemsList_HeaderButton').data('params').goto = '0';
+				$("#itemsList_HeaderButton").buttonMarkup({ icon: "home" });  
+     			if (caller_id !== 'btn_Item_OK') { 
+					fn_clear_itemsList(); //delete items list if has any entrees:
+					fn_get_most_recent_items_list('111'); // pull most recent items off DB				
+				}
+				$("#itemsList input[data-type='search']" ).attr("placeholder","Search DB...");
+				$("#items_search").data('params').search = 'db';
+				$("#items_search").data('params').goto_for_lis = '111';
+				$("#items_search_div").show();
+				$("#items_search1_div").hide();
+				//if ($.isEmptyObject(location_obj)) {getItemLocation()};
+
+			
+				
+			</code> 
+
+    				<form apppoint_id='111' selector='#theItem' descr='new item with position coming from GPS'> 
+						<code>
+							$('#theItem_header_button').data('params').goto = '11';
+							$('#btn_Item_OK').text('Save as  NEW');
+                            $('#btn_Item_OK').data('params').goto = '11';
+							$('#btn_Item_OK').data('params').db_action = 'save_new_item_to_db_gps';
+							$('#btn_Item_Cncl').text('Cancel');
+        				    $('#btn_Item_Cncl').data('params').goto = '11';
+							$('#btn_position').show();
+							fn_remove_addons_from_item();
+                            $('#btn_ii_delete').hide();
+
+						</code>
+
+					</form> 
+
+		</form> 
+		<form apppoint_id='13' selector='#mapPage' descr='map page to pick location from for new item from'> 
+			<code>
+				$('#map_back_button').data('params').goto = '0';
+				//$('#btn_map_set_postion').data('params').goto = '131';
+                //$('#btn_map_set_postion').show();
+				$('#btn_mapSearch').data('params').goto = '130';
+				//if ($.isEmptyObject(location_obj)) {getItemLocation()};
+				if (map){ map.mode1 = 'new';}
+
+
+			</code>
+					<form apppoint_id='130' selector='#itemsList' descr='itemlist form with input to search geocodes'> 
+						<code>
+							$('#itemsList_HeaderButton').data('params').goto = '13';
+							$("#itemsList_HeaderButton").buttonMarkup({ icon: "back" });  
+							fn_clear_itemsList(); //clear itemlist form
+							$("#itemsList input[data-type='search']" ).attr("placeholder","Search GeoCode...");
+							$("#items_search1").data('params').search = 'geocode';
+							$("#items_search1").data('params').goto_for_lis = '13';
+							$("#items_search_div").hide();
+							$("#items_search1_div").show();
+
+						</code>
+
+					</form> 		
+
+					<form apppoint_id='131' selector='#itemsList' descr='itemlist form with list of most recent items. Position picked from marker'> 
+						<code> 
+							$('#itemsList_HeaderButton').data('params').goto = '13';
+							$("#itemsList_HeaderButton").buttonMarkup({ icon: "back" });  
+							if (caller_id !== 'btn_Item_OK') { 
+								fn_clear_itemsList(); //delete items list if has any entrees:
+								fn_get_most_recent_items_list('1311'); // pull most recent items off DB				
+							}
+							$("#itemsList input[data-type='search']" ).attr("placeholder","Search DB...");
+							$("#items_search").data('params').search = 'db';
+							$("#items_search").data('params').goto_for_lis = '1311';
+							$("#items_search_div").show();
+							$("#items_search1_div").hide();							
+
+						</code> 
+
+								<form apppoint_id='1311' selector='#theItem' descr='new item with position picked from marker'> 
+									<code>
+										$('#theItem_header_button').data('params').goto = '13';
+										$('#btn_Item_OK').text('Save as  NEW');
+										$('#btn_Item_OK').data('params').goto = '13';
+										$('#btn_Item_OK').data('params').db_action = 'save_new_item_to_db_marker';	
+										$('#btn_Item_Cncl').data('params').goto = '13';
+										$('#btn_position').hide();
+										fn_remove_addons_from_item();
+                                        $('#btn_ii_delete').hide();
+
+									</code>
+
+								</form> 
+
+					</form> 
+
+		</form> 
+		<form apppoint_id='12' selector='#itemsList' descr='itemlist form to search existing item from DB in order to edit them'> 
+
+			<code> 
+                $('#itemsList_HeaderButton').data('params').goto = '0';
+				$("#itemsList_HeaderButton").buttonMarkup({ icon: "home" });  
+     			fn_clear_itemsList(); //delete items list if has any entrees:
+				$("#itemsList input[data-type='search']" ).attr("placeholder","Search DB detailed...");
+				$("#items_search1").data('params').search = 'detailed_db';
+				$("#items_search1").data('params').goto_for_lis = '121';
+				$("#items_search_div").hide();
+				$("#items_search1_div").show();				
+			</code> 
+
+    				<form apppoint_id='121' selector='#theItem' descr='item form to edit item'> 
+						<code>
+							$('#theItem_header_button').data('params').goto = '12';
+							$('#btn_Item_OK').text('Save to DB');
+                            $('#btn_Item_OK').data('params').goto = '12';
+							$('#btn_Item_OK').data('params').db_action = 'save_existing_item_to_db';
+							$('#btn_Item_Cncl').text('Cancel');
+        				    $('#btn_Item_Cncl').data('params').goto = '12';
+							$('#btn_position').hide();
+							fn_remove_addons_from_item();
+                            $('#btn_ii_delete').data('params').goto = '12';
+							$('#btn_ii_delete').show();
+                            $('#btn_ii_delete').data('params').db_action = 'delete_existing_ii_in_DB';
+
+						</code>
+
+					</form> 
+
+		</form> 
+
+
+    	<form apppoint_id='14' selector='#mapPage' descr='map page to find existing items on map and then edit them'> 
+
+			<code>
+				$('#map_back_button').data('params').goto = '0';
+               // $('#btn_map_set_postion').hide();
+				$('#btn_mapSearch').data('params').goto = '140';
+				if (map){ map.mode1 = 'edit';}
+				
+
+			</code>
+					<form apppoint_id='140' selector='#itemsList' descr='itemlist form with input to search geocodes'> 
+						<code>
+							$('#itemsList_HeaderButton').data('params').goto = '14';
+							$("#itemsList_HeaderButton").buttonMarkup({ icon: "back" });  
+							fn_clear_itemsList(); //clear itemlist form
+							$("#itemsList input[data-type='search']" ).attr("placeholder","Search GeoCode...");
+							$("#items_search1").data('params').search = 'geocode';
+							$("#items_search1").data('params').goto_for_lis = '14';
+							$("#items_search_div").hide();
+							$("#items_search1_div").show();	
+							
+						</code>
+
+					</form> 		
+
+
+					<form apppoint_id='141' selector='#theItem' descr='existing item picked from map'> 
+						<code>
+							$('#theItem_header_button').data('params').goto = '14';
+							$('#btn_Item_OK').text('Save to DB');
+							$('#btn_Item_OK').data('params').goto = '14';
+							$('#btn_Item_OK').data('params').db_action = 'save_existing_item_to_db';	
+							$('#btn_Item_Cncl').data('params').goto = '14';
+							$('#btn_position').hide();
+							fn_remove_addons_from_item();
+                            $('#btn_ii_delete').data('params').goto = '12';
+    						$('#btn_ii_delete').show();
+                            $('#btn_ii_delete').data('params').db_action = 'delete_existing_ii_in_DB';
+                            
+						</code>
+
+					</form> 
+
+
+		</form> 
+
+
+
+
+	</form> 
+
+
+</app> 
+
+
+</script>
+
+
+<script>
+
+// set db up:
+
+//var db = window.openDatabase("sm_assets_db", "", "UserTable", 1024 * 1000);
+var db; //webSQL
+var iddb; //indexeddb
+var DB_done = 1; // global var used to indicate whether async db operation been done
+
+var location_obj = {};
+var marker_locaton = {};
+var map;
+var reticleMarker;
+var caller_id; // id of element which triggers controller
+//$(fn_initDatabase());
+var markersArray = [];
+
+// below done for detailed search matching. Taken from :  http://stackoverflow.com/questions/10705160/string-compare-in-javascript-that-returns-a-boolean
+String.prototype.easyAsset_isMatch = function(s){
+   return this.match(s)!==null 
+}
+
+$( document ).on( "pagecreate", "#front_page", function() {
+	
+	fn_initDatabase();
+	getItemLocation();
+	// get all relevant buttons/LIs and append generic click event handler
+	$('a[data-params]').bind ("vclick", function (event){
+		caller_id = $(this).attr('id');
+		fn_controller($(this).data('params'));
+	});
+
+	// bind clck eventhandler to 'theAttribute' lookups sub form's button	
+	
+	$('#btn_add_new_LUV').bind ("vclick", function (event){
+		caller_id = $(this).attr('id');
+		fn_btn_add_new_LUV();
+	});
+	
+	// on 'the attribute form' bind chahge event to dropdown list: to disable lookup area if other type chosen
+	
+	$("#DataType_").bind ("change", function (event){
+		//$("#DataType_ :selected").val();		
+		if ($("#DataType_ :selected").val() == "lookup") {
+			
+		
+		}
+		else {
+		
+			$("#LUVs_container ").html("");
+		
+		}
+	});
+	
+
+	
+// Pan to GPS click handler:
+	$('#btn_panToGPS').bind ("vclick", function (event){
+			caller_id = $(this).attr('id');
+		if (!$.isEmptyObject(location_obj) && location_obj.latitude) {
+			//console.log(location_obj);
+			//return;
+			var latlng = new google.maps.LatLng(location_obj.latitude, location_obj.longitude);
+			map.setCenter(latlng);
+			reticleMarker.setPosition(latlng);
+			marker_locaton.latitude = location_obj.latitude;
+			marker_locaton.longitude = location_obj.longitude;
+		};
+
+	});	
+
+    			$('#btn_goto_admin').data('params').goto = '10';
+				$('#li_new_from_gps').data('params').goto = '11';
+				$('#li_existing_search_db').data('params').goto = '12';
+				$('#li_new_from_map').data('params').goto = '13';
+				$('#li_existing_search_map').data('params').goto = '14';
+				
+// bind click event and handler to 'append dummies' button:
+	$('#li_fillDummies_db').bind ("vclick", function (event){
+		$.mobile.loading( "show" );
+        fn_fillDBwithDummies(1000);
+	});	
+	
+
+
+    $('#li_export_db___').bind ("vclick", function (event){
+		var data = [["name1", "city1", "some other info"], ["name2", "city2", "more info"]];
+        var csvContent = "data:text/csv;charset=utf-8,";
+        data.forEach(function(infoArray, index){
+
+            dataString = infoArray.join(",");
+            csvContent += index < infoArray.length ? dataString+ "\n" : dataString;
+            
+            if (index == data.length -1) {console.log('end of for loop');}
+            
+
+        });
+        
+        var encodedUri = encodeURI(csvContent);
+        //this.setAttribute("href", encodedUri);
+        //this.setAttribute("download", "my_data.csv");
+        $(this).attr('href',encodedUri);//  = encodedUri;
+        $(this).attr('download',"my_data.csv"); // = "my_data.csv";
+        
+        console.log('end of click handler');
+	});	
+
+    
+    
+    $('#li_export_db').bind ("vclick", function (event){
+ 
+    $.mobile.loading( 'show', {
+      //text: msgText,
+      //textVisible: textVisible,
+      //theme: theme,
+      //textonly: textonly,
+      //html: html
+    });
+    fn_export_db_to_csv(f_csv_callback);
+    
+  return;
+    
+    
+    
+    
+    
+    
+    var transaction = iddb.transaction(["attributes_instances"], "readonly");
+    var objectStore = transaction.objectStore("attributes_instances");
+	var i = 0;
+	var idx = objectStore.index("by_AttrId_AttrInstanceId_idx");
+	
+	//var lowerBound = ['active',0,0];
+	//var upperBound = ['active',Infinity,Infinity];
+	
+	//var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+	var request = idx.openCursor();
+    var ais_array = [];
+    //var ai_array = [];
+    var csv_array =[];
+    var csv  = "data:text/csv;charset=utf-8,";
+    var titleArray = [];
+    
+	request.onsuccess = function(event) {
+		//console.log("request.onsuccess CALL");
+		i++;		
+		var cursor = event.target.result; //? var cursor = request.result;
+		if (cursor) { // cursor is my attribute object
+			//console.log("cursor - yes");			
+                ai_array = [];
+                
+                //ai_array.push();
+              
+              var attr_inst_id = cursor.value.attr_inst_id;
+			  //var this_attr_attr_id = cursor.value.attr_id
+			  var ai_type = cursor.value.ai_type;
+			  //var this_attr_ai_mandatory = cursor.value.ai_mandatory;
+			  var ai_name = cursor.value.ai_name;
+			  //var this_attr_ai_frontend_order = cursor.value.ai_frontend_order;
+			   var ai_status = cursor.value.ai_status;
+             
+             //ais_array.push([attr_inst_id, ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status]);
+             ais_array.push(attr_inst_id);
+            //console.log(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+            //csv_array.push(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+			titleArray.push(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+            
+			//console.log("after cursor.continue");
+			cursor.continue();
+			
+            
+		}
+		else {
+			//console.log("cursor - FINISHED");
+			//console.log("i: " + i);
+			if (i == 1) { //cursor is empty - no attributes yet
+                return 'no attrbutes';                
+			}
+    
+		}    
+    
+    }
+
+    
+    transaction.oncomplete = function() {
+        //console.log ("ais_array: " + ais_array);        
+        // now loop through items instances:
+        //by_ItemId_ItemInstId_idx
+        
+           //add common attributes titles:
+            titleArray.push('item_id');
+            titleArray.push('item_instance_id');
+            titleArray.push('status');
+            titleArray.push('positionPickedFrom');
+            titleArray.push('lat');
+            titleArray.push('lng');
+            titleArray.push('gps_accuracy');
+            titleArray.push('gps_altitude');
+            titleArray.push('gps_altitudeAccuracy');
+            titleArray.push('gps_heading');
+            titleArray.push('gps_lat');
+            titleArray.push('gps_lon');
+            titleArray.push('gps_speed');
+            titleArray.push('unix_timestamp');
+            //titleArray.push('timestamp_UTCString'); 
+            
+            //csv = csv + csv_array.join(",")+ "\n";
+            csv_array.push(titleArray);
+            
+            var transaction1 = iddb.transaction(["items_instances"], "readonly");
+            var objectStore1 = transaction1.objectStore("items_instances");
+        	i = 0;
+        	var idx1 = objectStore1.index("by_ItemId_ItemInstId_idx");
+        	
+        	//var lowerBound = ['active',0,0];
+        	//var upperBound = ['active',Infinity,Infinity];
+        	
+        	//var range = IDBKeyRange.bound(lowerBound,upperBound);
+        	
+        	var request1 = idx1.openCursor();
+            
+        	
+            request1.onsuccess = function(event) {
+                i++;		
+        		
+                
+                var cursor1 = event.target.result; //? var cursor = request.result;
+        		
+                
+                if (cursor1) { // cursor is my attribute object
+                    
+                    var csvRow = new Array(ais_array.length).join('a').split('a');
+                    //new Array(5+1).join('a').split('a');
+                    
+                    // add common atttributes:
+                    
+                        csvRow.push(cursor1.value.item_id);
+                        csvRow.push(cursor1.value.item_instance_id);
+                        csvRow.push(cursor1.value.ii_status);
+                        csvRow.push(cursor1.value.ii_positionPickedFrom);
+                        csvRow.push(cursor1.value.ii_latitude||'');
+                        csvRow.push(cursor1.value.ii_longitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.accuracy||'');
+                        csvRow.push(cursor1.value.ii_gps_data.altitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.altitudeAccuracy||'');
+                        csvRow.push(cursor1.value.ii_gps_data.heading||'');
+                        csvRow.push(cursor1.value.ii_gps_data.latitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.longitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.speed||'');
+                        csvRow.push(cursor1.value.unix_timestamp);
+                        //titleArray.push(cursor1.value.unix_timestamp.toUTCString());                    
+                    
+                    
+                    
+                    
+                    var attribute_instances_ids = cursor1.value.attribute_instances_ids;
+         		    var values = cursor1.value.values;
+                    //var index = ais_array.indexOf();
+                    $.map(attribute_instances_ids, function( attr_inst_id, index ) {
+                        var matchIndex = ais_array.indexOf(attr_inst_id);
+                        //if (i < 10) {console.log (i);}
+                        if (matchIndex||matchIndex==0) {
+                            csvRow[matchIndex] = values[index];
+                            //sTOP HERE
+                            //if (i < 10) {console.log (csvRow);}
+                            
+                        }
+                        
+                        //console.log ("index:" + index + " attribute_instances_ids.length: " + attribute_instances_ids.length);
+
+                        ///if (index == attribute_instances_ids.length-1) {
+                            //if (i < 10) {csv_array.push(csvRow.join(','));}
+                        ///    if (i < 10) {csv_array.push(csvRow);}
+                            //if (i < 10) {console.log ("csvRow: " + csvRow);}
+                        ///}
+                    });
+                    
+                    //if (i < 10) {csv_array.push(csvRow);}
+                    //if (i < 10) {csv_array.push(csvRow);}
+                 
+                    csv_array.push(csvRow);
+                    
+                    cursor1.continue();
+    			
+                
+        		}
+        		else {
+        			//console.log("cursor - FINISHED");
+        			//console.log("i: " + i);
+        			if (i == 1) { //cursor is empty - no attributes yet
+                        return 'no items';                
+        			}
+            
+        		}       
+    
+            }
+    
+            transaction1.oncomplete = function(){
+                
+                
+                //console.log(csv_array);
+                csv_array.forEach(function(infoArray, index){
+
+                    var csvRowStr = infoArray.join(",");
+                    csv += index < csv_array.length-1 ? csvRowStr+ "\n" : csvRowStr;
+                    
+                        ///if (index == csv_array.length-1) {
+                            //console.log(csv);
+                            //return csv;
+                            //callback(csv);
+                        ///}                    
+                    
+                }); 
+                
+                    //console.log(csv);
+                    var encodedUri = encodeURI(csv);
+                    //this.setAttribute("href", encodedUri);
+                    //this.setAttribute("download", "my_data.csv");
+                    //$(this).attr('href',encodedUri);//  = encodedUri;
+                    //$(this).attr('download',"my_data.csv"); // = "my_data.csv";
+                    //$(this).trigger( "click" );
+                    //window.open(encodedUri);
+                
+                    var windowSize = "width=" + window.innerWidth + ",height=" + window.innerHeight + ",scrollbars=no";
+                    window.open(encodedUri, 'popup', windowSize);
+                
+            };
+    
+    
+        //console.log(csv);
+    };
+    //console.log (ais_array); 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+	});
+
+    $('#b_delete_db_dialogue_OK').bind ("vclick", function (event){
+        
+            var transaction1 = iddb.transaction(["items_instances"], "readwrite");
+            var objectStore1 = transaction1.objectStore("items_instances");
+        
+        
+        //var store = getObjectStore(DB_STORE_NAME, 'readwrite');
+        var req = objectStore1.clear();
+        req.onsuccess = function(evt) {
+          //displayActionSuccess("Store cleared");
+          //displayPubList(store);
+          console.log('deleted');
+        };
+        req.onerror = function (evt) {
+          console.error("clearObjectStore:", evt.target.errorCode);
+          //displayActionFailure(this.error);
+        };       
+
+    });
+
+
+    $("#b_export_db_dialogue_OK").bind ("vclick", function (event){
+        
+        //$.mobile.changePage( "#export_db_dialogue", { role: "dialog" } );
+        $("#export_db_dialogue").dialog( "close" );
+    
+    });
+    
+});
+
+
+
+
+$(document).ready(function(){ //in jquery mobile it fires only one when first page loads
+
+	location.hash = ""
+	
+	$(":mobile-pagecontainer").pagecontainer("load", "#front_page"); 
+});
+
+
+
+$("#itemsList").on( 'pagecreate',function(event){ //this event called only once when #itemsList page created
+
+	// bound event for db search
+	//$( "#items_search" ).on( "filterablebeforefilter", function ( e, data ) {
+	//$("#itemsList input[data-type='search']" ).on("keyup", function(e) {		
+	$("#items_search_input" ).on("keyup", function(e) {
+		var $ul = $( "#items_search1" ),
+            value = $(this).val(),
+            html = "";
+			
+		var passedObj = $ul.data('params');	
+		var data_goto_for_li =  passedObj.goto_for_lis; 
+		var search_type = passedObj.search;
+		$ul.html( "" );
+		
+		//console.log("tems_search_input KEYUP search_type: " + search_type);
+		if(e.which == 13) {
+		
+			switch  (search_type) {
+					case 'db':		
+								//if ( value && value.length > 2 ) {
+									$ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+									$ul.listview( "refresh" );
+						 
+									fn_get_searched_items_list(data_goto_for_li, value); 
+							
+								//}	
+					break;
+					case 'detailed_db':
+								
+								//if ( value && value.length > 2 ) {
+									$ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+									$ul.listview( "refresh" );
+						            $.mobile.loading( "show" );
+									fn_detailed_db_search(data_goto_for_li, value); 
+							
+								//}	
+					break;
+					case 'geocode':
+					
+									$ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+									$ul.listview( "refresh" );
+						 
+									fn_get_geocodes_list(data_goto_for_li, value);
+					
+					
+					
+					
+					break;				
+					default:
+					
+					
+					
+					}
+		}
+
+	});
+
+// bound event to search box clear button:
+//ui-input-clear
+	$("#itemsList .ui-input-clear" ).on("click", function(e) {	
+		$("#items_search li").remove("");
+		$("#items_search").listview('refresh');
+	});
+
+
+	
+// bound procedure for quick db search:
+
+	// bound event for db search
+	$( "#items_search" ).on( "filterablebeforefilter", function ( e, data ) {
+			
+        var $ul = $( this ),
+            $input = $( data.input ),
+            value = $input.val(),
+            html = "";
+			
+		var passedObj = $ul.data('params');	
+		var data_goto_for_li =  passedObj.goto_for_lis; 
+		var search_type = passedObj.search;
+		
+		
+        $ul.html( "" );
+		
+	
+							if ( value && value.length > 2 ) {
+								$ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+								$ul.listview( "refresh" );
+					 
+								fn_get_searched_items_list(data_goto_for_li, value); 
+						
+							}	
+	
+	});	
+	
+
+});
+
+// app logic controller:
+
+function fn_controller(paramsObj) {
+	// !!! this function get fired by click events of all buttons and get passed 'params' object. 
+	// Once fired the function reads the app logic XML for passed 'goto' attribute of passed 'paramObj' object and execute code from XML's <code></code>
+	// It also runs db related functions dependin on 'db-action' attribute of passed 'paramObj' object.
+
+
+	
+	var appPoint = '0';
+    // check if object passed:
+    if (!paramsObj) {return;} // if no 'paramsObj' passed - something went very wrong - do nothing
+
+	//get passed 'goto' attribute
+	if (!paramsObj.goto) { // if no 'goto' attribute passed - set it to 'home page'
+        //console.log('!paramsObj.goto');
+		appPoint = '0';        
+    }
+    else {
+ 			appPoint = paramsObj.goto;
+	}
+
+    // get xml of app logic
+
+    var appLogic = $.parseXML( $("#myxml").html() );
+
+    var pageSelector = $(appLogic).find("form[apppoint_id='" +  appPoint  + "']").attr('selector');    
+    var appPointCode = $(appLogic).find("form[apppoint_id='" +  appPoint  + "'] code").first().text();
+
+
+
+	$(":mobile-pagecontainer").pagecontainer("change", pageSelector); 
+	
+	//console.log("controller/location_obj.wpid: " + location_obj.wpid);
+    //run code from xml logic for appPoint:
+    if (appPointCode) {$.globalEval(appPointCode);}
+
+
+// perform database operations:
+
+    if (paramsObj.db_action) {
+
+        switch (paramsObj.db_action) {
+            case 'save_new_attribute_to_DB':
+
+
+                //alert ('new attribute saved');
+				fn_insert_new_attribute_to_db('1000',fn_clear_attributesList,fn_get_attributesList,fn_ReBuild_item_form);
+				//fn_clear_attributesList();
+				//fn_get_attributesList('1000');				
+				
+				//fn_ReBuild_item_form(); //build item from based on attributes in DB 
+				
+
+
+
+
+
+
+            break;
+
+            case 'save_existing_attribute_to_DB':
+
+                //alert ('existing attribute saved');
+				//fn_save_existing_attribute_update_to_db(paramsObj.passed_data_1);
+				fn_save_existing_attribute_update_to_db(paramsObj.passed_data_1, paramsObj.passed_data_2, '1000',fn_clear_attributesList,fn_get_attributesList, fn_ReBuild_item_form)
+				//fn_ReBuild_item_form(); //build item from based on attributes in DB 
+
+            break;           
+            case 'delete_existing_attribute_in_DB':
+
+                //alert ('existing attribute deleted');
+				//fn_delete_existing_attribute_update_to_db(paramsObj.passed_data_1);
+				fn_delete_ia(paramsObj.passed_data_1,'1000',fn_clear_attributesList,fn_get_attributesList, fn_ReBuild_item_form);				
+				
+				//fn_ReBuild_item_form(); //build item from based on attributes in DB 
+
+
+            break;               
+            case 'save_new_item_to_db_gps':
+
+                fn_put_item_inst_object_to_db('device','111',fn_clear_itemsList, fn_get_most_recent_items_list, plotItemsOnMap);
+
+            break;
+            case 'save_new_item_to_db_marker':
+
+                fn_put_item_inst_object_to_db('marker','1311',fn_clear_itemsList, fn_get_most_recent_items_list, plotItemsOnMap);
+	
+            break;
+
+			
+            case 'save_existing_item_to_db':
+
+				//(item_instance_id, item_id, gotoForItemList,callback1,callback2,callback3)
+				console.log('controller paramsObj.passed_data_1: ' + paramsObj.passed_data_1);
+				
+				switch(appPoint){
+					
+					
+					
+                    case '12': //from db search
+                        //alert ('existing item found in db GOT saved to db');
+						fn_update_item_inst_object_to_db(paramsObj.passed_data_1, paramsObj.passed_data_2, plotItemsOnMap);
+
+                    break;
+
+                    case '14': //from map
+                        //alert ('existing item picked from map marker GOT saved to db');
+						fn_update_item_inst_object_to_db(paramsObj.passed_data_1, paramsObj.passed_data_2, plotItemsOnMap);
+				 
+                    break;
+
+
+                    default:
+
+
+
+                }
+
+
+            break;     			
+
+			case 'update_lookup_value_in_db':
+
+                    // delete value in DB 
+						//alert ('lu valuse has been updated in db');
+					fn_update_existing_luv_in_db(paramsObj.passed_data_1,paramsObj.passed_data_2);
+					// then poulate luv list (back action of OK button on luv form)
+					fn_get_lookup_values_list(paramsObj.passed_data_2);
+					fn_ReBuild_item_form(); //build item from based on attributes in DB ;
+
+			break;
+
+
+
+			case 'delete_lookup_value_in_db':
+
+                    // delete value in DB 
+						//alert ('lu deleted in db');
+					fn_delete_existing_luv_in_db(paramsObj.passed_data_1,paramsObj.passed_data_2)
+					// then poulate luv list (back action of OK button on luv form)
+					fn_get_lookup_values_list(paramsObj.passed_data_2);
+					fn_ReBuild_item_form(); //build item from based on attributes in DB 
+
+
+			break;
+
+
+
+			case 'insert_new_lookup_value_to_db':
+
+                    // insert new value to DB: 
+						//alert ('lu value inserted into db');
+                    // delete value in DB 
+						//alert ('lu valuse has been updated in db');
+			
+					fn_insert_new_luv_in_db(paramsObj.passed_data_2);
+					// then poulate luv list (back action of OK button on luv form)
+					fn_get_lookup_values_list(paramsObj.passed_data_2);
+					fn_ReBuild_item_form(); //build item from based on attributes in DB 
+
+
+			break;
+			case 'populate_existing_attribute_with_data': 
+				console.log("populate_existing_attribute_with_data CALL in dispatcher");
+				fn_populate_existing_attribute(paramsObj.passed_data_1);
+
+			break;
+			case 'populate_list_of_attributes':
+				
+				fn_clear_attributesList();
+				fn_get_attributesList('1000');
+			
+			break;
+			case 'populate_list_of_lookup_values':
+				
+				fn_get_lookup_values_list(paramsObj.passed_data_1);
+			
+			break;
+			case 'populate_luv_form':
+				fn_populate_luv_form(paramsObj.passed_data_1,paramsObj.passed_data_2);
+			
+			
+			break;
+
+			case 'populate_new_item_form':
+
+			
+			
+			
+			break;
+			case 'populate_item_form_with_data':
+
+				fn_populate_item_instance(paramsObj.passed_data_1)
+			
+			
+			break;
+
+            case 'delete_existing_ii_in_DB':
+                //fn_put_item_inst_object_to_db('marker','1311',fn_clear_itemsList, fn_get_most_recent_items_list, plotItemsOnMap);
+                //fn_delete_ia(paramsObj.passed_data_1,'1000',fn_clear_attributesList,fn_get_attributesList, fn_ReBuild_item_form);
+                fn_delete_ii(paramsObj.passed_data_1);
+            
+            break;
+			
+            default:
+
+
+        }
+
+    } 		
+
+
+
+	//if (appPoint == '111' ) {alert('gps status: ' + $('#theItem').data('geolocation').status);}
+			//switch (appPoint) { //here you can run some extra code for each appPoint if needed
+
+			//	case '0':
+
+			//	break;
+
+			//	default:
+
+			//}	
+
+	//console.log('attr_list_add_btn - passed_data_1 IN CONTROLLER  22: ' + $('#attr_list_add_btn').data('params').passed_data_1); //!!?? UNDEFINED
+
+
+}
+
+
+function fn_get_most_recent_items_list(data_goto_for_li){
+
+
+	// apend li for NEW item first:
+		$("#itemsList_list_ul").append("<li><a href='#'  data-params='{}' id='a_new_item'>Create new item from empty form</a></li>");
+		$("#a_new_item").data('params').goto = data_goto_for_li;
+		$("#a_new_item").data('params').passed_data_1 = '-1';
+		// append divider: 
+		$("#itemsList_list_ul").append('<li data-role="list-divider" id="li_new_item_divider">List of most recent items:</li>');
+		
+		
+		// add click handler to li's
+			$("#a_new_item").bind ("vclick", function (event){
+				caller_id = $(this).attr('id');
+				fn_controller($(this).data('params'));			
+			});	
+
+		//$("#itemsList_list_ul").listview('refresh');	
+
+
+	var tx = iddb.transaction(["items_instances"], "readonly");
+	var items_store = tx.objectStore("items_instances");
+
+	var idx = items_store.index("by_Status_ItemId_ItemInstId_idx");
+
+
+	
+
+			var lowerBound = ['active',0,0];
+			var upperBound = ['active',Infinity,Infinity];
+	
+			var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+			var request = idx.openCursor(range,'prev');
+			
+			var i  = 0;
+			
+			request.onsuccess = function(event) {
+				
+				//console.log("check 1401 "); //STOP HERE 
+
+				//i++;
+
+				var cursor = event.target.result;
+
+				if (cursor) { // cursor is my attribute object
+					//console.log("check 1401 i: " + i);
+					if (i <= 5 ) { //limit here how many most recent IIs to display
+						
+						var frontend_orders = cursor.value.frontend_orders;
+						var values = cursor.value.values;
+						var frontEnd_array  = [];	
+						var itemFrontNameLabel = '';
+						var itemId = cursor.value.item_id;
+						var item_instance_id = cursor.value.item_instance_id;
+						
+						// calculate ii name for frontEnd:
+						for (var ii = 0; ii < values.length; ii++) {
+							if ((frontend_orders)[ii] && (frontend_orders)[ii] != -1) {
+								var subArray = [frontend_orders[ii], values[ii]];
+								frontEnd_array.push(subArray); 
+							}
+						
+						}
+						
+						frontEnd_array.sort(function(a,b) {
+							return parseInt(a[0],10) - parseInt(b[0],10);
+						});
+						
+						for (var ii = 0; ii < frontEnd_array.length; ii++) {
+							if (itemFrontNameLabel) {
+								itemFrontNameLabel = itemFrontNameLabel + ' | '  + frontEnd_array[ii][1];
+							}
+							else {
+								itemFrontNameLabel = frontEnd_array[ii][1];
+							}
+						}						
+						
+						
+						//console.log(itemFrontNameLabel);
+						
+						$("#itemsList_list_ul").append("<li><a href='#'  data-params='{}'>" + itemFrontNameLabel + "</a></li>");
+						$("#itemsList_list_ul a:last").data('params').goto = data_goto_for_li;
+						$("#itemsList_list_ul a:last").data('params').passed_data_1 = item_instance_id;
+						$("#itemsList_list_ul a:last").data('params').db_action = 'populate_item_form_with_data';
+						$("#itemsList_list_ul a:last").bind ("vclick", function (event){
+							caller_id = $(this).attr('id');
+							fn_controller($(this).data('params'));});					
+
+						
+						i++;
+						cursor.continue();
+						
+					}									
+					////cursor.continue();
+				}
+				else {
+					if (i == 1) { //cursor is empty - no attributes yet
+						////$("#li_new_item_divider").text("List of most recent items: no items in database yet");
+					} 
+
+				}
+				
+
+				$("#itemsList_list_ul").listview('refresh');	
+				
+
+			}
+
+
+
+}
+
+function fn_get_searched_items_list(data_goto_for_li, userInput){
+
+
+	var tx = iddb.transaction(["items_instances"], "readonly");
+	var items_store = tx.objectStore("items_instances");
+
+	var idx = items_store.index("Iby_ItemValuesArray_idx");
+
+
+			var lowerBound = userInput;
+			var upperBound = userInput + '\uffff'; // http://stackoverflow.com/questions/7086180/indexeddb-fuzzy-search
+
+	
+			//var range = IDBKeyRange.bound(lowerBound,upperBound, true, true);
+			var range = IDBKeyRange.bound(lowerBound,upperBound);
+			//var range = IDBKeyRange.lowerBound(userInput);
+			//var range = IDBKeyRange.bound("92000", "92999", true, true);  //ibm
+			
+			var request = idx.openCursor(range, "prev");
+			//var request = idx.openCursor();
+			var i  = 0;
+			
+			request.onsuccess = function(event) {
+
+				//i++;
+
+				var cursor = event.target.result;
+
+				if (cursor) { // cursor is my attribute object
+					//console.log("check 1401 i: " + i);
+					if (i <= 10 && cursor.value.ii_status == 'active') { //limit here how many items to display
+						
+						var frontend_orders = cursor.value.frontend_orders;
+						var values = cursor.value.values;
+						var frontEnd_array  = [];	
+						var itemFrontNameLabel = '';
+						var itemId = cursor.value.item_id;
+						var item_instance_id = cursor.value.item_instance_id;
+						
+						// calculate ii name for frontEnd:
+						for (var ii = 0; ii < values.length; ii++) {
+							if ((frontend_orders)[ii] && (frontend_orders)[ii] != -1) {
+								var subArray = [frontend_orders[ii], values[ii]];
+								frontEnd_array.push(subArray); 
+							}
+						
+						}
+						
+						frontEnd_array.sort(function(a,b) {
+							return parseInt(a[0],10) - parseInt(b[0],10);
+						});
+						
+						for (var ii = 0; ii < frontEnd_array.length; ii++) {
+							if (itemFrontNameLabel) {
+								itemFrontNameLabel = itemFrontNameLabel + ' | '  + frontEnd_array[ii][1];
+							}
+							else {
+								itemFrontNameLabel = frontEnd_array[ii][1];
+							}
+						}						
+						
+						
+						//console.log(itemFrontNameLabel);
+						
+						$("#items_search").append("<li><a href='#'  data-params='{}'>" + itemFrontNameLabel + "</a></li>");
+						$("#items_search a:last").data('params').goto = data_goto_for_li;
+						$("#items_search a:last").data('params').passed_data_1 = item_instance_id;
+						$("#items_search a:last").data('params').db_action = 'populate_item_form_with_data';
+						$("#items_search a:last").bind ("vclick", function (event){
+							caller_id = $(this).attr('id');
+							fn_controller($(this).data('params'));});					
+						i++;
+						cursor.continue();
+						
+					}									
+					/////cursor.continue();
+				}
+				else {
+					if (i == 1) { //cursor is empty - no attributes yet
+						///$("#li_new_item_divider").text("Search results: no items found");
+						//console.log('cursor empty');
+					} 
+
+				}
+				
+
+				$("#items_search").listview('refresh');	
+				
+				//console.log("check 1401 i: " + i);
+			}
+
+
+}
+
+
+function fn_detailed_db_search(data_goto_for_li, userInput){
+	// this function does detailed search (result includes search string) for items , whereas above one does only on starting chracters
+
+	var tx = iddb.transaction(["items_instances"], "readonly");
+	var items_store = tx.objectStore("items_instances");
+
+	var idx = items_store.index("by_Status_ItemId_ItemInstId_idx");
+
+			var lowerBound = ['active',0,0];
+			var upperBound = ['active',Infinity,Infinity];
+	
+			var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+			var request = idx.openCursor(range,'prev');
+
+			
+			
+			var i  = 0;
+			
+			request.onsuccess = function(event) {
+			
+	
+				var cursor = event.target.result;
+
+				
+				
+				if (cursor) { // cursor is my attribute object
+					
+					
+					if (i <= 10 ) { //limit here how many items to display
+						
+						var values = cursor.value.values;
+						var  values_str = values.join(',');
+						
+						
+						if (values_str.easyAsset_isMatch(userInput)) { //if MATCH found 
+							
+							i++;
+							var frontend_orders = cursor.value.frontend_orders;
+							
+							var frontEnd_array  = [];	
+							var itemFrontNameLabel = '';
+							var itemId = cursor.value.item_id;
+							var item_instance_id = cursor.value.item_instance_id;
+							
+							// calculate ii name for frontEnd:
+							for (var ii = 0; ii < values.length; ii++) {
+								if ((frontend_orders)[ii] && (frontend_orders)[ii] != -1) {
+									var subArray = [frontend_orders[ii], values[ii]];
+									frontEnd_array.push(subArray); 
+								}
+							
+							}
+							
+							frontEnd_array.sort(function(a,b) {
+								return parseInt(a[0],10) - parseInt(b[0],10);
+							});
+							
+							for (var ii = 0; ii < frontEnd_array.length; ii++) {
+								if (itemFrontNameLabel) {
+									itemFrontNameLabel = itemFrontNameLabel + ' | '  + frontEnd_array[ii][1];
+								}
+								else {
+									itemFrontNameLabel = frontEnd_array[ii][1];
+								}
+							}						
+							
+							
+							//console.log(itemFrontNameLabel);
+							
+							$("#items_search1").append("<li><a href='#'  data-params='{}'>" + itemFrontNameLabel + "</a></li>");
+							$("#items_search1 a:last").data('params').goto = data_goto_for_li;
+							$("#items_search1 a:last").data('params').passed_data_1 = item_instance_id;
+							$("#items_search1 a:last").data('params').passed_data_2 = itemId;
+							$("#items_search1 a:last").data('params').db_action = 'populate_item_form_with_data';
+							$("#items_search1 a:last").bind ("vclick", function (event){
+								caller_id = $(this).attr('id');
+								fn_controller($(this).data('params'));});					
+		
+							
+							
+						}									
+					cursor.continue();
+					}
+				}
+				else {
+					if (i == 1) { //cursor is empty - no attributes yet
+						$("#li_new_item_divider").text("Search results: no items found");
+					} 
+
+				}
+				
+
+				$("#items_search1").listview('refresh');	
+				$.mobile.loading( "hide" );
+
+			}
+
+
+}
+
+
+function fn_clear_itemsList(){
+
+	
+
+	$("#itemsList_list_ul li").remove("");
+
+	$("#itemsList_list_ul").listview('refresh');
+	//console.log('fn_clear_itemsList CALLED. UL html: ' + $("#itemsList_list_ul").html() );
+	
+	//$( "#itemsList input[data-type='search']" ).val('');
+	$("#items_search li").remove("");
+	$("#items_search").listview('refresh');
+	$( "#itemsList .ui-input-clear" ).trigger( "click" );
+	
+}	
+
+function fn_clear_attributesList() {
+
+		$("#ul_atrr_list li").remove("");
+		$("#ul_atrr_list").listview('refresh');
+}
+
+
+function fn_get_attributesList(data_goto_for_li) {
+   		// populate list of item attributes:
+	//console.log("marker");
+	var transaction = iddb.transaction(["attributes_instances"], "readonly");
+	var objectStore = transaction.objectStore("attributes_instances");
+	var i = 0; //????
+	var idx = objectStore.index("byStatus_Order_AttrId_idx");
+	
+	var lowerBound = ['active',0,0];
+	var upperBound = ['active',Infinity,Infinity];
+	
+	var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+	var request = idx.openCursor(range,'next');
+	request.onsuccess = function(event) {
+		//console.log("request.onsuccess CALL");
+		i++;		
+		var cursor = event.target.result; //? var cursor = request.result;
+		if (cursor) { // cursor is my attribute object
+			//console.log("cursor - yes");			
+			//alert("Name for SSN " + cursor.key + " is " + cursor.value.name);
+					
+						//console.log("attr instance name: " + cursor.value.ai_name);
+						$("#ul_atrr_list").append("<li><a href='#'  data-params='{}'>" + cursor.value.ai_name + "</a></li>");	
+						$("#ul_atrr_list li:last a").data('params').goto = data_goto_for_li;
+						$("#ul_atrr_list li:last a").data('params').passed_data_1 = cursor.value.attr_inst_id; 
+						$("#ul_atrr_list li:last a").data('params').db_action = 'populate_existing_attribute_with_data';
+						$("#ul_atrr_list li:last a").bind ("vclick", function (event){
+							caller_id = $(this).attr('id');
+							fn_controller($(this).data('params'))});
+
+						
+												
+			
+			cursor.continue();
+		}
+		else {
+			//console.log("cursor - FINISHED");
+			//console.log("i: " + i);
+			if (i == 1) { //cursor is empty - no attributes yet
+				$("#ul_atrr_list").append("<li><a href='#'  data-params='{}'>no attributes yet</a></li>");
+					console.log("no attributes in IDDB yet");
+			} 
+			//alert("No more entries!");
+		}
+		$("#ul_atrr_list").listview('refresh');	
+	};	
+
+
+}
+
+function geocode_test(input) {
+var geocoder = new google.maps.Geocoder();
+geocoder.geocode( 
+		{'address': input },
+		function (results, status){
+		
+			//console.log('results.lengh: ' + results.length);
+			console.log(results);
+			for (var i = 0; i < results.length; i++) {
+			
+				console.log(results[i].formatted_address);
+				console.log(results[i].geometry.location.lat() + ',' + results[i].geometry.location.lng());
+				//console.log(results[i].geometry.location.toString());
+			}
+		
+		}
+	
+);
+
+}
+
+
+
+function fn_get_geocodes_list(data_goto_for_li, userInput) {
+	var geocoder = new google.maps.Geocoder();
+	geocoder.geocode( 
+		{'address': userInput }, 
+		function(results, status) {
+			
+			//var test = [];
+			if (status == google.maps.GeocoderStatus.OK) {
+
+				
+			
+				for (var i = 0; i < results.length; i++) {
+					var address = results[i].formatted_address;
+					var lat = results[i].geometry.location.lat();
+					var lng = results[i].geometry.location.lng();
+
+					
+					if (i <= 20){ // limit list length
+	
+						if (address.length > 30 ) { address  = address.substring(0,28) + '...'; }
+						var  latLng =  new google.maps.LatLng(lat, lng);
+						
+						
+						$("#items_search1").append("<li><a href='#'  data-params='{}'>" + address + "</a></li>");
+						$("#items_search1 a:last").data('params').goto = data_goto_for_li;
+						$("#items_search1 a:last").data('params').passed_data_1 = latLng;
+						//$("#items_search1 a:last").data('params').passed_data_2 = lng;
+						$("#items_search1 a:last").bind ("vclick", function (event){
+							var latLng = $(this).data('params').passed_data_1;
+							map.setCenter(latLng);
+							reticleMarker.setPosition(latLng);
+							marker_locaton.latitude = latLng.lat();
+							marker_locaton.longitude = latLng.lng();
+							fn_controller($(this).data('params'));
+
+							});					
+							
+					}
+				}
+			} //end if status == google.maps.GeocoderStatus.OK
+			else { // geocoder status is NOT OK 
+			
+				console.log ('google.maps.GeocoderStatus: ' + status);
+			
+			}
+			$("#items_search1").listview('refresh');
+		}
+	);
+
+}
+
+
+function fn_initDatabase() {
+     try {
+            var request = window.indexedDB.open("easyGeoAssetsIddb", 22);
+			request.onsuccess = function (event) {
+				iddb = request.result;
+				//PrintDBInformation(db);
+				console.log ("idb created or opened successfully");
+				//iddb.close();
+				fn_ReBuild_item_form(); //build item from based on attributes in DB 
+			}
+            request.onerror = function (event) {
+				console.log("indexedDB.open Error: " + event.message);
+            }
+     
+			request.onupgradeneeded = function(event) {
+
+				var db = event.target.result;
+				
+				//db.deleteObjectStore("attributes_instances");
+				//db.deleteObjectStore("items_instances");
+				
+				var attributes_instances = db.createObjectStore("attributes_instances", { keyPath: 'id', autoIncrement: true });
+				var items_instances = db.createObjectStore("items_instances", { keyPath: 'id', autoIncrement: true });
+				
+				//this index used to get list of latest attribute_instances to build itemForm and display list of attributes on attributes form
+				var byStatus_Order_AttrId_idx = attributes_instances.createIndex('byStatus_Order_AttrId_idx', ['ai_status','ai_order','attr_id','attr_inst_id'], { unique: true });
+				//this index used to get all instances of one attribute:
+				var by_AttrId_AttrInstanceId_idx = attributes_instances.createIndex('by_AttrId_AttrInstanceId_idx', ['attr_id','attr_inst_id'], { unique: true });
+				
+				
+				// index used to get list of 'active' item_instances
+				var by_Status_ItemId_ItemInstId_idx = items_instances.createIndex('by_Status_ItemId_ItemInstId_idx',['ii_status','item_id','item_instance_id'], {unique: true })
+				
+				//index to list all instances of one item
+				var by_ItemId_ItemInstId_idx = items_instances.createIndex('by_ItemId_ItemInstId_idx',['item_id','item_instance_id'], {unique: true })
+				
+				//index for searching items based on values of item (tags)
+				
+				var by_ItemValuesArray_idx = items_instances.createIndex('Iby_ItemValuesArray_idx','values', {unique: false, multiEntry:true })
+				
+				// geo index
+				
+				var by_lat_lon_idx = items_instances.createIndex('by_lat_lon_idx',['ii_latitude','ii_longitude'], {unique: false})
+				
+			};	 
+	 
+	 
+	 
+	 }
+     catch (e) {
+               console.log("Error: " + e.message);
+			   return;
+     }
+
+
+
+
+
+	
+} 
+
+function fn_nullDataHandler(){
+    console.log("SQL Query Succeeded");
+}
+
+
+
+
+function fn_timestamp(){
+	var ts = new Date().getTime();
+	return ts; 
+}
+
+
+function fn_insert_new_attribute_to_db(gotoForAttrList,callback1, callback2, callback3){
+
+
+	var ai_name = $("#AttrName").val();
+	ai_name =ai_name.replace(/[^\w\s]/gi, ''); //remove special characters -> http://stackoverflow.com/questions/4374822/javascript-regexp-remove-all-special-characters 	
+	var ai_type =	$("#DataType_ :selected").val();
+	var ai_mandatory =  + $("#mandatory_").is(':checked');
+	var ai_order = (isNaN(+ $("#attrOrder").val()))?(0):(+ $("#attrOrder").val());
+	var ai_frontend_order =	(isNaN(+ + $("#FrontEndAttrOrder").val()))?(-1):(+ $("#FrontEndAttrOrder").val());
+	
+
+	var tx = iddb.transaction(["attributes_instances"], "readwrite");
+	var store = tx.objectStore("attributes_instances");
+	
+	//var count = 0;
+	//console.log("store.count(): " + store.count());
+	//store.count().onsuccess = function(e) {
+		
+	//	count = e.target.result;
+	//	console.log("count: " + count);
+	//};
+	
+	
+	var ia = {
+		attr_inst_id: -1,
+		attr_id: -1, // equals attr_inst_id from brandnew attribute, after then get copied to updates
+		ai_status: "active", // ? active, updated, deleted
+		unix_timestamp: (fn_timestamp()), 
+		ai_name: ai_name, 
+		ai_type: ai_type, 
+		ai_mandatory: ai_mandatory, 
+		ai_order: ai_order, 
+		ai_frontend_order: ai_frontend_order,
+		lookup_values: []
+	};
+	
+	
+	
+// do lookups:
+	var LUVs = [];	
+	$("#LUVs_container div.oneLUV").each(function( index ) {
+		
+		//console.log($($(this).find('input[type=text]')[0]).val());		
+		var luv = $(this).find('input[type=text]').val();
+		luv = luv.replace(/[^\w\s]/gi, '');
+		var default_ = + $(this).find('input[type=checkbox]').is(':checked');
+		var order  = $(this).find('input[type=number]').val();
+		order = (isNaN(+ order))?(0):(+ order);
+		LUVs.push([luv, order, default_]);
+	});
+
+
+	if (LUVs.length > 0 ) {
+		// sort LUVs according orders:
+			ia.lookup_values = LUVs.sort(function(a,b) {
+				return a[1] > b[1];
+			});		
+		}
+
+	
+	
+	store.put(ia).onsuccess = function(event){
+		//console.log("Saved with id " + event.target.result)
+			
+			store.get(event.target.result).onsuccess = function(event){
+			
+				var justInserted_ia = event.target.result;
+				
+				//console.log ('justInserted_ia OBJ:  ' + justInserted_ia);
+				//update justInserted_ia :
+				justInserted_ia.attr_inst_id = justInserted_ia.id;
+				justInserted_ia.attr_id = justInserted_ia.id;
+				// put back to store:
+					store.put(justInserted_ia).onsuccess = function(event){
+						//console.log ('updated');
+					}
+				
+			
+			}
+		
+
+		
+	
+	}; 
+
+	
+		
+	 // update attr_id here
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("new attribute added to indexed db successfully");
+		//fn_clear_attributesList();	  
+	  	//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+		callback3();	  	
+	  	
+	  
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+		//fn_clear_attributesList();		
+		//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+		
+	};
+
+	
+}
+
+
+function fn_populate_existing_attribute(attr_instance_id) {
+
+console.log("fn_populate_existing_attribute CALL");
+	// delete previous LUVs:
+	$("#LUVs_container").html("");
+	
+
+	var transaction = iddb.transaction(["attributes_instances"], "readonly");
+	var objectStore = transaction.objectStore("attributes_instances");
+	
+
+	objectStore.get(attr_instance_id).onsuccess = function(event) {
+		
+				
+		var ai = event.target.result;
+		console.log("populated attribute >> attr_instance_id: "+ attr_instance_id  + " / ai attr_id:  " + ai.attr_id );
+
+		$("#AttrName").val(ai.ai_name);
+		$("#DataType_ option[value=" + ai.ai_type  + "]").attr("selected", true);
+		$("#DataType_").selectmenu('refresh');
+		$("#mandatory_").attr("checked", Boolean(ai.ai_mandatory)).checkboxradio("refresh");
+		$("#attrOrder").val(ai.ai_order);
+		$("#FrontEndAttrOrder").val(ai.ai_frontend_order);
+		$('#btn_theAttribute_OK').data('params').passed_data_1 = attr_instance_id;
+		$('#btn_theAttribute_OK').data('params').passed_data_2 = ai.attr_id;
+		$('#btn_theAttribute_delete').data('params').passed_data_1 = attr_instance_id;
+		//$('#btn_theAttribute_delete').data('params').passed_data_2 = ai.attr_id;
+	
+		// populate lookups:
+		for (var i = 0; i < ai.lookup_values.length; i++) {
+			
+			var LUVid = fn_btn_add_new_LUV(ai.lookup_values[i][0]);
+			
+			$("#luv_" + LUVid + " input[type=text]").val(ai.lookup_values[i][0]);
+			$("#luv_" + LUVid + " input[type=checkbox]").attr("checked", Boolean(ai.lookup_values[i][2])).checkboxradio("refresh");
+			$("#luv_" + LUVid + " input[type=number]").val(ai.lookup_values[i][1]);
+			//console.log("ai.lookup_values.length: "+ ai.lookup_values.length);			
+			//$("#luv_" + LUVid).trigger("create");	
+			//$("#LUVs_container").trigger("create");				
+		}
+		//$("#luv_" + LUVid).trigger("create");	
+		$("#LUVs_container").trigger("create");	
+	
+	}
+
+}
+
+
+function fn_save_existing_attribute_update_to_db(attr_instance_id, attr_id, gotoForAttrList, callback1, callback2, callback3) {
+
+	var ai_name = $("#AttrName").val();
+	ai_name =ai_name.replace(/[^\w\s]/gi, ''); //remove special characters -> http://stackoverflow.com/questions/4374822/javascript-regexp-remove-all-special-characters 	
+	var ai_type =	$("#DataType_ :selected").val();
+	var ai_mandatory =  + $("#mandatory_").is(':checked');
+	var ai_order = (isNaN(+ $("#attrOrder").val()))?(0):(+ $("#attrOrder").val());
+	var ai_frontend_order =	(isNaN(+ + $("#FrontEndAttrOrder").val()))?(-1):(+ $("#FrontEndAttrOrder").val());
+	
+
+	var tx = iddb.transaction(["attributes_instances"], "readwrite");
+	var store = tx.objectStore("attributes_instances");
+	
+	
+	
+	
+	var ia = {
+		attr_inst_id: -1,
+		attr_id: attr_id, // equals attr_inst_id from brandnew attribute, after then get copied to updates
+		ai_status: "active", // ? active, updated, deleted
+		unix_timestamp: (fn_timestamp()), 
+		ai_name: ai_name, 
+		ai_type: ai_type, 
+		ai_mandatory: ai_mandatory, 
+		ai_order: ai_order, 
+		ai_frontend_order: ai_frontend_order,
+		lookup_values: []
+	};
+	
+	
+	
+// do lookups:
+	var LUVs = [];	
+	$("#LUVs_container div.oneLUV").each(function( index ) {
+		
+		//console.log($($(this).find('input[type=text]')[0]).val());		
+		var luv = $(this).find('input[type=text]').val();
+		luv = luv.replace(/[^\w\s]/gi, '');
+		var default_ = + $(this).find('input[type=checkbox]').is(':checked');
+		var order  = $(this).find('input[type=number]').val();
+		order = (isNaN(+ order))?(0):(+ order);
+		LUVs.push([luv, order, default_]);
+	});
+
+
+	if (LUVs.length > 0 ) {
+		// sort LUVs according orders:
+			ia.lookup_values = LUVs.sort(function(a,b) {
+				return a[1] > b[1];
+			});		
+		}
+
+	store.put(ia).onsuccess = function(event){
+		//console.log("Saved with id " + event.target.result)
+		
+			store.get(attr_instance_id).onsuccess = function(event){
+			
+				var updated_ia = event.target.result;
+				
+				//console.log ('justInserted_ia OBJ:  ' + justInserted_ia);
+				//update justInserted_ia :
+				updated_ia.ai_status = "updated";
+				// put back to store:
+					store.put(updated_ia).onsuccess = function(event){
+						console.log ('updated');
+					}
+				
+			
+			}
+		
+			store.get(event.target.result).onsuccess = function(event){
+			
+				var justInserted_ia = event.target.result;
+				
+				//console.log ('justInserted_ia OBJ:  ' + justInserted_ia);
+				//update justInserted_ia :
+				justInserted_ia.attr_inst_id = justInserted_ia.id;
+				//justInserted_ia.attr_id = justInserted_ia.id;
+				// put back to store:
+					store.put(justInserted_ia).onsuccess = function(event){
+						//console.log ('updated');
+					}
+				
+			
+			}
+		
+	
+	}; 
+
+	
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("updated attribute added to indexed db successfully");
+		//fn_clear_attributesList();	  
+	  	//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+		callback3();	  	
+
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+		//fn_clear_attributesList();		
+		//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+
+	};
+
+}
+
+
+
+
+function fn_delete_ia(attr_instance_id, gotoForAttrList, callback1, callback2, callback3) {
+
+
+	var tx = iddb.transaction(["attributes_instances"], "readwrite");
+	var store = tx.objectStore("attributes_instances");
+	
+	
+	
+			store.get(attr_instance_id).onsuccess = function(event){
+				var deleted_ia = event.target.result;
+				
+				deleted_ia.ai_status = "deleted";
+				// put back to store:
+					store.put(deleted_ia).onsuccess = function(event){
+						//console.log ('deleted');
+					}
+				
+			
+			}
+		
+
+	
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("attribute marked as deleted in indexed db successfully");
+		//fn_clear_attributesList();	  
+	  	//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+		callback3();	  	
+
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+		//fn_clear_attributesList();		
+		//fn_get_attributesList('1000');
+		callback1();
+		callback2(gotoForAttrList);
+
+	};
+
+
+}
+
+
+function fn_ReBuild_item_form(){
+
+	var theItem_content_div = $('#theItem_content_div');
+	//clear content:
+	$(theItem_content_div).html("");
+	
+	//$(theItem_content_div).append("<a href='#' data-role='button' id='btn_position' data-icon='refresh' data-theme='c' data-params='{'goto': '-1'}'>position:  ,  </a>");
+	//$(theItem_content_div).append("<strong id='item_geoposition' data-theme='c'>GPS position is: </strong>");
+	$(theItem_content_div).append("<textarea name='item_geoposition' id='item_geoposition' disabled=true style='font-size:12px'>Can't get postion. Check if GPS is ON </textarea>");
+	
+	// add div to hold deleted AIs notifications:
+	$(theItem_content_div).append("<div id='deleted_ais'></div>");
+	 //<a href="#" data-role="button" id="btn_position" data-icon="refresh" data-theme='c' data-params='{"goto": "-1"}'>position: 52.35 , -2.38</a>
+	
+
+	var transaction = iddb.transaction(["attributes_instances"], "readonly");
+	var objectStore = transaction.objectStore("attributes_instances");
+	var i = 0;
+	var idx = objectStore.index("byStatus_Order_AttrId_idx");
+	
+	var lowerBound = ['active',0,0];
+	var upperBound = ['active',Infinity,Infinity];
+	
+	var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+	var request = idx.openCursor(range,'next');
+	request.onsuccess = function(event) {
+		//console.log("request.onsuccess CALL");
+		i++;		
+		var cursor = event.target.result; //? var cursor = request.result;
+		if (cursor) { // cursor is my attribute object
+			//console.log("cursor - yes");			
+
+
+			  var this_attr_instance_id = cursor.value.attr_inst_id;
+			  var this_attr_attr_id = cursor.value.attr_id
+			  var this_attr_ai_type = cursor.value.ai_type;
+			  var this_attr_ai_mandatory = cursor.value.ai_mandatory;
+			  var this_attr_ai_name = cursor.value.ai_name;
+			  var this_attr_ai_frontend_order = cursor.value.ai_frontend_order;
+			 
+
+			  //switch attributedata type
+				switch  (this_attr_ai_type) {
+					case "text":
+						theItem_content_div.append("<label for='aii_" + this_attr_attr_id + "'>" + this_attr_ai_name + "</label>");
+						theItem_content_div.append("<input type='text' id='aii_" + this_attr_attr_id + "' data-params1='{}' value=''/>");
+					
+					break;
+					case "number":
+						theItem_content_div.append("<label for='aii_" + this_attr_attr_id + "'>" + this_attr_ai_name + "</label>");
+						theItem_content_div.append("<input type='number' id='aii_" + this_attr_attr_id + "' data-params1='{}' value=''/>");
+
+					break;
+					case "date":
+						theItem_content_div.append("<label for='aii_" + this_attr_attr_id + "'>" + this_attr_ai_name + "</label>");
+						theItem_content_div.append("<input type='date' id='aii_" + this_attr_attr_id + "' data-params1='{}' value=''/>");
+
+				
+					break;
+					case "time":
+						
+						theItem_content_div.append("<label for='aii_" + this_attr_attr_id + "'>" + this_attr_ai_name + "</label>");
+						theItem_content_div.append("<input type='datetime' id='aii_" + this_attr_attr_id + "' data-params1='{}' value=''/>");
+											
+			
+					break;
+					case "boolean":
+						
+						theItem_content_div.append("<fieldset data-role='controlgroup'");
+						theItem_content_div.append( "<legend>" + this_attr_ai_name + ":</legend>");												
+						theItem_content_div.append( "<label><input type='checkbox' id='aii_" + this_attr_attr_id + "' class='custom' checked='false' data-params1='{}' />tick - YES</label>");	
+						theItem_content_div.append( "</fieldset>");	
+						
+
+				
+					break;								
+					case "lookup":
+
+						theItem_content_div.append("<label for='aii_" + this_attr_attr_id + "' class='select'>" + this_attr_ai_name + "</label>");
+						theItem_content_div.append("<select id='aii_" + this_attr_attr_id + "' data-params1='{}'/></select>");												
+						
+						var selectElement = $("#aii_" + this_attr_attr_id);
+						var LUVarr = cursor.value.lookup_values;					
+						
+						for (var i = 0; i < LUVarr.length; i++) {
+							
+
+								if (LUVarr[i][2] == 1) { // default luv
+									selectElement.append("<option value='" + LUVarr[i][0] + "' selected= true>" + LUVarr[i][0] + "</option>");
+									
+								}
+								else
+								{
+								
+									selectElement.append("<option value='" + LUVarr[i][0] + "'>" + LUVarr[i][0] + "</option>");
+									
+								}
+
+							
+									
+						}						
+						// STOP HERE : 						
+						//theItem_content_div.append
+						
+						
+					break;								
+
+					default:
+
+				}  //end of swtch of data type
+				
+				
+				$('#aii_' + this_attr_attr_id).data('params1').attr_instance_id = this_attr_instance_id;
+				$('#aii_' + this_attr_attr_id).data('params1').ai_type = this_attr_ai_type;
+				$('#aii_' + this_attr_attr_id).data('params1').ai_frontend_order = this_attr_ai_frontend_order;	
+				$('#aii_' + this_attr_attr_id).data('params1').labelUpdated = 0;	
+				theItem_content_div.append("</div>"); // end of each attribute div
+				
+			    // only numbers restricttion on control:
+                if (this_attr_ai_type == 'number') {
+                    
+                    $('#aii_' + this_attr_attr_id).bind ("keyup", function (event){
+                        this.value = this.value.replace(/[^0-9\.]/g,'');
+                    });
+                    
+                }
+												
+			
+			cursor.continue();
+			console.log("after cursor.continue");
+		}
+		else {
+			//console.log("cursor - FINISHED");
+			//console.log("i: " + i);
+			if (i == 1) { //cursor is empty - no attributes yet
+				theItem_content_div.append("<p>No atributes created yet</p>");
+					console.log("no attributes in IDDB yet");
+			} 
+			else { // NON-EMPTY cursor finished
+			
+				// append buttons
+				theItem_content_div.append("<a href='#' data-role='button' data-theme='b' id='btn_Item_OK' data-inline='true' data-mini='true' data-params='{}'>Save as new</a>");
+				theItem_content_div.append("<a href='#' data-role='button' data-theme='e' id='btn_Item_Cncl' data-inline='true' data-mini='true' data-params='{}'>Cancel</a>");
+				$('#btn_Item_OK').data('params').goto = '0';
+				$('#btn_Item_Cncl').data('params').goto = '0';
+				
+				// bind click event to the buttons:
+
+				$('#theItem_content_div a').bind ("vclick", function (event){
+					caller_id = $(this).attr('id');
+					fn_controller($(this).data('params'));
+				});							
+	//#####################################
+				//" | this attr has been updated to lookup type since item created and value was: "
+				//$('#btn_Item_OK').bind ("vclick", function (event){
+				//						$("label[for='aii_2']").text("LU2 cvvcv vcvvc | this attr has been updated to lookup type since item created and value was: OLD VALUE 222222");
+				//						$("#aii_2").val('');
+				//						$("#aii_2 option[value='']").attr("selected", false);
+				//						$("#aii_2").selectmenu('refresh');								
+					
+				//});	
+	//#####################################
+
+				// refresh item form:
+				
+				$("#theItem").trigger("create");	
+				
+			
+			}
+		}
+	};	
+		
+}
+
+
+function fn_btn_add_new_LUV(headerText){
+	// function adds new LUV div into 'theAttribute' form:
+	
+	//var container = $("#LUVs_container");
+	//.append("<li><a href='#'  data-params='{}' id='a_new_item'>Create new item from empty form</a></li>");
+	var headerText_ = "";
+	if (!headerText) {
+		headerText = "New lookup value";
+	}
+	else {
+		headerText.replace(/[^\w\s]/gi, '');
+	}
+	var LUV_id = $("#LUVs_container div.oneLUV").length + 1;
+	
+	//console.log($("#LUVs_container div.oneLUV").length);	
+	var LUV_div = '<div data-role="collapsible" data-collapsed="true" id="luv_' + LUV_id  + '" class="oneLUV">';
+	LUV_div += '<h3>' + headerText + '</h3><div class="ui-grid-a"><div class="ui-block-a"><div><button type="button" data-theme="c" data-icon="delete" data-inline="true" id="luv_delete_btn_' + LUV_id  + '">delete</button></div></div><div class="ui-block-b"><label> \
+	<input type="checkbox"/>default</label></div></div><div><input type="text" value="" placeholder="lookup value"/> \
+	</div><div class="ui-grid-b"><div data-role="fieldcontain" class="ui-block-b"> \
+	<input type="number" value=""  placeholder="Order"/></div></div></div>';
+	$("#LUVs_container").append(LUV_div);
+	// add click event handler to delete button of being added LUV
+	$('#luv_delete_btn_' + LUV_id).bind ("vclick", function (event){
+		// fn_controller($(this).data('params'));
+		caller_id = $(this).attr('id');
+		$( "#luv_" + LUV_id).remove();
+		
+	});
+	$("#LUVs_container").collapsibleset( "refresh" );
+	
+	//("#luv_" + LUV_id + "").trigger("create");
+	
+	$("#LUVs_container").trigger("create");
+	return LUV_id;
+}
+
+function fn_clear_attribute_form(){
+
+	$("#AttrName").val("");
+	$("#DataType_ option[value='text']").attr("selected", true);
+	$("#DataType_").selectmenu('refresh');	
+	//$("#DataType_ :selected").val("");
+	$("#mandatory_").attr("checked", Boolean(0)).checkboxradio("refresh");
+	$("#attrOrder").val("");
+	$("#FrontEndAttrOrder").val("-1");
+	$("#LUVs_container").html("");
+}
+
+function fn_put_item_inst_object_to_db(position_picked,gotoForItemList,callback1,callback2,callback3) {
+
+	var tx = iddb.transaction(["items_instances"], "readwrite");
+	var store = tx.objectStore("items_instances");
+
+
+	var ii = {};
+	
+	ii.item_instance_id = -1;
+	ii.item_id = -1;
+	ii.unix_timestamp = (fn_timestamp());
+	ii.ii_status = "active";
+	ii.ii_gps_data = {};
+	ii.attribute_instances_ids = [];
+	ii.values = [];
+	ii.frontend_orders = [];
+
+	ii.ii_gps_data.accuracy = location_obj.accuracy;
+	ii.ii_gps_data.altitude = location_obj.altitude;			
+	ii.ii_gps_data.altitudeAccuracy = location_obj.altitudeAccuracy;
+	ii.ii_gps_data.heading = location_obj.heading;		
+	ii.ii_gps_data.speed = location_obj.speed;		
+	
+	
+	switch (position_picked) {
+	
+		case 'device':
+			ii.ii_latitude = location_obj.latitude;
+			ii.ii_longitude = location_obj.longitude;			
+			ii.ii_positionPickedFrom = position_picked;	
+		break;
+		
+		case 'marker':
+	
+			ii.ii_gps_data.latitude = location_obj.latitude;	
+			ii.ii_gps_data.longitude = location_obj.longitude;	
+		
+			ii.ii_latitude = marker_locaton.latitude;
+			ii.ii_longitude = marker_locaton.longitude;
+			ii.ii_positionPickedFrom = position_picked;	
+		break;		
+		
+		default:
+		
+		break;
+	
+	}
+	
+
+	//var theItem_content_div = $('#theItem_content_div');
+	$('#theItem_content_div [data-params1]').each(
+		function( index ) {
+			var element = 	$(this);
+			ii.attribute_instances_ids.push(element.data('params1').attr_instance_id);
+			ii.frontend_orders.push(element.data('params1').ai_frontend_order);
+				
+				switch (element.data('params1').ai_type) //!!! may be better get attr instance from db get all attr related info needed here
+				{
+				   case "text":
+				   case "number":
+				    
+				   
+				       ii.values.push((element.val()).replace(/[!<>'"&#]/,''));
+				       
+				       
+				       break;
+					case "time":
+                        ii.values.push(validated_time(element.val()));
+                        break;
+                    case "date":
+						//ii.values.push([element.val().toString().slice(0,4),'-',element.val().toString().slice(4,6),'-',element.val().toString().slice(6,8)].join(''));
+						ii.values.push(element.val());
+						break;
+					case "boolean":
+						ii.values.push(+ ($(element)).is(':checked'));
+						break;
+					case "lookup":
+						//$("#DataType_ :selected").val();
+						ii.values.push($(element).find(":selected").val());
+						break;
+				   default: 
+				       //alert('Default case');
+				       break;
+				}			
+	
+		});
+
+
+	store.put(ii).onsuccess = function(event){
+		//console.log("Saved with id " + event.target.result)
+			
+			store.get(event.target.result).onsuccess = function(event){
+			
+				var justInserted_ii = event.target.result;
+				
+				//console.log ('justInserted_ia OBJ:  ' + justInserted_ia);
+				//update justInserted_ia :
+				justInserted_ii.item_instance_id = justInserted_ii.id;
+				justInserted_ii.item_id = justInserted_ii.id;
+				// put back to store:
+					store.put(justInserted_ii).onsuccess = function(event){
+						//console.log ('updated');
+					}
+				
+			
+			}
+		
+
+		
+	
+	}; 
+
+	
+		
+	 // update attr_id here
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("new item instance added to indexed db successfully");
+
+		
+		//fn_clear_itemsList();
+		
+		callback1();
+		callback2(gotoForItemList);
+		callback3();
+
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+		callback1();
+		callback2(gotoForItemList);
+	};
+
+} 
+
+function fn_populate_item_instance(item_instance_id) {
+
+// function populates item instance into already pre-built item form.
+
+
+	var tx = iddb.transaction(["items_instances", "attributes_instances"], "readonly");
+	var items_store = tx.objectStore("items_instances");
+	var attributes_store = tx.objectStore("attributes_instances");
+	
+
+// get ii:
+
+	items_store.get(item_instance_id).onsuccess = function(event){
+		var ii = event.target.result;
+		var ais_array = ii.attribute_instances_ids;
+		var values_array = ii.values;
+		var itemId = ii.item_id;
+		//console.log ('fn_populate_item_instance called ii is : ' + ii);		
+		//console.log (values_array);	
+			//for (var i = 0; i < ais_array.length; i++) { // loop through attr instances associated with this item instance 
+			$.map(ais_array, function( ais_array_element, i ) {
+					attributes_store.get(ais_array_element).onsuccess = function(event){
+					var ai = event.target.result;
+					var ai_attr_inst_id = ai.attr_inst_id;
+					var ai_type  = ai.ai_type;
+					var ai_attr_id  = ai.attr_id;
+					var ai_status  = ai.ai_status;
+					var ai_name = ai.ai_name;
+					var value  = values_array[i];					
+
+					//var itemsFormElement = $("[data-attrlogid=" + row.attrLogId  +"]"); 
+					//theItem_content_div.append("<input type='number' id='aii_" + this_attr_instance_id + "' data-params1='{}' value=''/>");
+					// check if attribute deleted (in this case there is no corresponding element on item form)
+                    if  ($("#aii_" + ai_attr_id ).length == 0 ) { // this atttribute is deleted one
+                        
+    					// append info about delted ais into div dedicated for it:
+						//#deleted_ais
+						//var deleted_ais_div = $("#deleted_ais");
+						if ($("#deleted_ais ul").length == 0) {$("#deleted_ais").append('<ul data-role="listview"></ul>')}
+                        
+                        //$("#deleted_ais").append("<div>Attribute " + ai_name +  " of type "  + ai_type  + " has been deleted after this item been created. Value : " + value + "</div>");                        
+                        $("#deleted_ais ul").append("<li>This item also has attribute called '" + ai_name +  "' of type '"  + ai_type  + "' which has been deleted since this item been created. Value : " + value + "</li>");                        
+                        
+                    }
+					else { // this attribute is NOT deleted
+					
+								// in case where atrribute has been updated to different data type since item been created - check it:							
+								var itemsFormElement = $("#aii_" + ai_attr_id ); 
+								//console.log(itemsFormElement.data('params1'));
+								
+								if (ai_type == itemsFormElement.data('params1').ai_type) { // ai is either new or updated but still the same data type 
+								//console.log('xxx' + itemsFormElement.data('params1').ai_type);
+								
+									switch (ai_type) // pulled from db attribute instance type (aka OLD ONE. NEW ONE is one which used  to build 'item' form)
+									{
+									   case "text":
+									   case "number":
+									   case "time": 
+									   case "date":
+										   $('#aii_' + ai_attr_id).val(value);
+										   //console.log ('xxx: ' + value);
+										   
+										   break;
+
+										case "boolean": 
+											//ii.values.push(+ ($(element)).is(':checked'));
+											$("#aii_" + ai_attr_id).attr("checked", Boolean(value)).checkboxradio("refresh");
+											break;
+										case "lookup":
+											// here it might be an idea to check if lookup value exists
+											//$("#DataType_ :selected").val();
+											//ii.values.push($(element).find(":selected").val());
+											///$("label[for='aii_" + ai_attr_inst_id + "']").text(ai_name + " | this attr has been updated to lookup type since item created and value was: " + value);
+											///$("#aii_" + ai_attr_inst_id).val('');
+											///$("#aii_" + ai_attr_inst_id + " option[value='']").attr("selected", false);
+											///$("#aii_" + ai_attr_inst_id).attr('data-labelUpdated') = 1;	
+											///$("#aii_" + ai_attr_inst_id).selectmenu('refresh');											
+											
+											if ($("#aii_" + ai_attr_id + " option[value='" + value  + "']").length == 0) { //value is NOT on list
+												$("label[for='aii_" + ai_attr_id + "']").text("lookup value: '" + value + "' has been deleted since this item been created. Default vlaue used instead");
+												$("#aii_" + ai_attr_id).data('params1').labelUpdated = 1;	
+											}
+											else {
+												$("#aii_" + ai_attr_id + " option[value='" + value  + "']").attr("selected", true);
+												$("#aii_" + ai_attr_id).selectmenu('refresh');				
+											
+											}
+														
+											
+											break;
+									   default: 
+										   //alert('Default case');
+										   break;
+									}														
+								
+								
+								}							
+								else { //ai data type been changed
+								
+									switch (itemsFormElement.data('params1').ai_type) // 'NEW' type
+									{
+									   case "text":
+									   case "number":
+									   case "time": 
+									   case "date":
+										   $('#aii_' + ai_attr_id).val(value);
+										   
+										   
+										   break;
+										case "boolean":
+												if (value == 0 || value == 1){
+													 $('#aii_' + ai_attr_id).attr("checked", Boolean(value)).checkboxradio("refresh");
+												
+												
+												}
+												else{
+													//itemsFormElement.after('<div class="tooltip1">previous value was: ' + row.attrValue +'</div>');
+													//console.log ($(itemsFormElement).parent().value());
+													$(itemsFormElement).parent().find("span.ui-btn-text").text("tick - YES  | this attr has been updated to YES/NO type since item created and value was: " + value);
+												}
+											break;
+										case "lookup":
+											//$("#DataType_ :selected").val();
+											//ii.values.push($(element).find(":selected").val());
+											$("label[for='aii_" + ai_attr_id + "']").text(ai_name + " | this attr has been updated to lookup type since item created and value was: " + value);
+											$("#aii_" + ai_attr_id).val('');
+											$("#aii_" + ai_attr_id + " option[value='']").attr("selected", false);
+											$("#aii_" + ai_attr_id).data('params1').labelUpdated = 1;	
+											$("#aii_" + ai_attr_id).selectmenu('refresh');
+													
+											
+											break;
+									   default: 
+										   //alert('Default case');
+										   break;
+									}			
+								
+								}
+							
+							
+					
+					}
+					
+                    
+
+				
+				} // end of get ai sucess callback
+	
+	
+			//} // for i loop : loop through aiis array
+			}); //end of .map()
+	
+	
+		// do buttons:
+		
+		$('#btn_Item_OK').data('params').passed_data_1 = item_instance_id;
+		$('#btn_Item_OK').data('params').passed_data_2 = itemId;
+
+    	$('#btn_ii_delete').data('params').passed_data_1 = item_instance_id;
+		$('#btn_ii_delete').data('params').passed_data_2 = itemId;
+	
+	} // end of get ii sucess callback
+	
+
+}
+
+
+function fn_remove_addons_from_item(){
+// function removes addons (updated and deleted AIs notification) from theItem form:
+
+	var tx = iddb.transaction(["attributes_instances"], "readonly");
+	var attributes_store = tx.objectStore("attributes_instances");
+
+
+	$("#deleted_ais").html("");
+	
+	$('#theItem_content_div [data-params1]').each(
+		function( index ) {
+			var element = 	$(this);
+				
+				switch (element.data('params1').ai_type) 
+				{
+
+					case "text":
+					case "number":
+					case "time": 
+					case "date":
+						element.val('');
+					break;				
+
+					case "boolean":
+						element.parent().find("span.ui-btn-text").text("tick - YES");
+					break;
+					case "lookup":
+						//itemsFormElement.attr('data-attrDataType')
+						
+						//$("label[for='aii_" + ai_attr_inst_id + "']").text(ai_name + " | this attr has been updated to lookup type since item created and value was: " + value);
+						if (element.data('params1').labelUpdated == 1) { // label has been updated
+							// get old label from db:
+							attributes_store.get(element.data('params1').attr_instance_id).onsuccess = function(event){
+								var ai = event.target.result;
+                                //var ai_attr_inst_id = ai.attr_inst_id;
+								//$("label[for='aii_" + ai_attr_inst_id + "']").text(
+                                
+                                $("label[for='aii_" + ai.attr_id + "']").text(ai.ai_name);
+								element.data('params1').labelUpdated = 0; 
+                                //$("#aii_" + ai.ai_attr_inst_id).selectmenu('refresh');    
+                                //console.log('point 001:' + ai.attr_id)
+							}
+						}
+						
+						
+						
+						
+					break;
+				   default: 
+				       //do nothing
+				   break;
+				}			
+	
+		});
+		
+		
+
+}
+
+
+
+
+
+$( document ).on( "pagechange", function(e,data) {
+	//console.log(data.options.target);
+	var page = data.options.target;
+	
+	if (page) {
+	
+		switch (page) {
+		
+			case '#mapPage':
+				//$('#map_geoposition').attr('disabled',true);
+				//$('#map_geoposition').textinput('disable');
+				
+				if (!map) { // draw map in case it hasn't been dome on map creation stage for some reason
+					fn_draw_map();
+				
+				}
+				else {
+					
+					google.maps.event.trigger(map, 'resize');
+					//plotItemsOnMap();
+					
+					google.maps.event.trigger(map, 'idle');
+
+				}
+				
+				
+				
+			break;
+			
+			case '#front_page':
+				//setTimeout(function(){alert("Hello")},3000);
+				//fire GPS tracking Up with 3sec delay (? just incase)
+				//setTimeout(getItemLocation(),3000);
+				//getItemLocation();
+				
+			break;
+			case '#admin_front-page':
+				//map.setCenter(new google.maps.LatLng(54.890498, -1.932984));
+			
+			break;
+			
+			case '#itemsList':
+				$('#items_search1').html("");
+				$('#items_search1').listview( "refresh" );
+			
+			break;
+			default:
+				
+				//map = '';
+				//console.log (map);
+				//$('#item_geoposition').text("");
+				//$('#map_geoposition').text("");
+			break;
+		
+		
+		}
+
+	
+	}
+	
+
+	
+});
+
+
+
+
+
+$( document ).on( "pagecreate", "#the_item", function() {
+	$('#item_geoposition').text("Can't get postion. Check if GPS is ON");
+});
+
+$( document ).on( "pagecreate", "#itemsList", function() {
+	if ($.isEmptyObject(location_obj)) {getItemLocation()};
+});
+
+$( document ).on( "pagecreate", "#mapPage", function() {
+	//console.log("map page create");
+	if ($.isEmptyObject(location_obj)) {getItemLocation()};
+	
+	fn_draw_map();
+	
+
+
+});
+
+function fn_draw_map(){
+
+	var defaultLatLng = new google.maps.LatLng(54.890498, -2.932984);  // Default to Carlisle UK
+
+	$("#mapDiv").height (screen.height - 200);
+	
+	
+
+		
+		var myOptions = {
+            zoom: 16,
+            center: defaultLatLng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        
+		var reticleImage = new google.maps.MarkerImage(
+			'images/reticle.png',            // marker image
+			new google.maps.Size(63, 63),    // marker size
+			new google.maps.Point(0,0),      // marker origin
+			new google.maps.Point(32, 32)    // marker anchor point
+		);  
+		
+		var reticleShape = {
+			coords: [32,32,32,32],           // 1px
+			type: 'rect'                     // rectangle
+		 };
+	
+
+		
+		//var map = new google.maps.Map(document.getElementById("mapDiv"), myOptions);
+        map = new google.maps.Map($("#mapDiv")[0], myOptions);
+		
+
+		
+		reticleMarker = new google.maps.Marker({
+			position: defaultLatLng,
+			map: map,
+			//icon: reticleImage, 
+			//shape: reticleShape,
+			//optimized: false,
+			//zIndex: 5,
+			draggable:true, 
+			title: 'Hello World!'
+		});
+		
+		google.maps.event.addListener(map, 'bounds_changed',
+			function(){
+			//console.log (map.getBounds().toString());
+			//reticleMarker.setPosition(map.getCenter());
+				//plotItemsOnMap();
+			});
+		
+		google.maps.event.addListener(map, 'idle',
+			function(){
+			//console.log (map.getBounds().toString());
+			//reticleMarker.setPosition(map.getCenter());
+				
+				
+				if (map.getZoom() < 15 ) {
+					clearOverlays();
+				}
+				else{
+					plotItemsOnMap();
+				}
+				
+				
+				
+			});
+		
+		// below is needed to deal with isse when viewport is not loading to full size of div initially
+		google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
+				google.maps.event.trigger(map, 'resize');
+				var latLng = map.getCenter();
+				reticleMarker.setPosition(latLng);
+				marker_locaton.latitude = latLng.lat();
+				marker_locaton.longitude = latLng.lng();
+				
+			});
+	
+	
+		google.maps.event.addListener(reticleMarker, 'dragend', function() 
+			{
+				//console.log('marker location: ' + reticleMarker.getPosition());
+				var marker_position  = reticleMarker.getPosition();
+				marker_locaton.latitude = marker_position.lat();
+				marker_locaton.longitude = marker_position.lng();
+				//location_obj.positionPickedFrom = 'marker';
+			});
+
+		google.maps.event.addListener(reticleMarker, 'click', function() 
+			{
+				//infowindow.open(map,reticleMarker);
+				fn_controller({"goto": "131"});
+			});
+			
+		var contentString = "<div id='infowindow'>Add new item: Add new item: Add new item: Add new item: </br><a href='#'  id='li_new_from_map'>New Item</a></div>";
+		//var content_el =  $("#theAttribute").html(); 
+		var infowindow = new google.maps.InfoWindow({
+			content: contentString
+			//content: content_el
+		});
+
+}
+
+
+
+
+
+
+
+
+
+
+
+function getItemLocation(){
+	location_obj = {};
+	$('#item_geoposition').text("Getting position from GPS...");
+	$('#map_geoposition').text("Getting position from GPS...");
+	
+	if(!!navigator.geolocation){
+		location_obj.attempts = 0;
+		location_obj.wpid=navigator.geolocation.watchPosition(geo_success, geo_error, {enableHighAccuracy:true, maximumAge:5000, timeout:27000});
+		}
+	else {
+		location_obj = {};
+		$('#item_geoposition').text("ERROR: Your Browser doesnt support Geo location");
+		$('#map_geoposition').text("ERROR: Your Browser doesnt support Geo location");
+		}
+
+} 
+
+
+function geo_success(position){
+	var d=new Date(); 
+	var h=d.getHours();
+	var m=d.getMinutes();
+	var s=d.getSeconds();
+	var current_datetime=format_time_component(h)+":"+format_time_component(m)+":"+format_time_component(s);
+	location_obj.attempts ++; 
+	
+	if (location_obj.attempts == 1) {return;}  // ignores 1st success call. Done to deal with bug in geolocation when browser uses location from GPS cache
+
+			location_obj.latitude = position.coords.latitude;
+			location_obj.longitude = position.coords.longitude;
+			location_obj.accuracy = position.coords.accuracy;
+			location_obj.altitude = position.coords.altitude;
+			location_obj.altitudeAccuracy = position.coords.altitudeAccuracy;
+			location_obj.heading = position.coords.heading;
+			location_obj.speed = position.coords.speed;
+
+			
+			$('#item_geoposition').text("Current positon: lat="+(position.coords.latitude).toFixed(4)+", long="+(position.coords.longitude).toFixed(4)+
+				" (accuracy "+Math.round(position.coords.accuracy, 2)+"m) taken at: "+current_datetime);
+			
+			
+			$('#map_geoposition').text("Current positon: lat="+(position.coords.latitude).toFixed(4)+", long="+(position.coords.longitude).toFixed(4)+
+				" (accuracy "+Math.round(position.coords.accuracy, 2)+"m) taken at: "+current_datetime);
+			
+			if(position.coords.accuracy<=10000 && !location_obj.firstValidPostionFlag && map){ 			
+
+				location_obj.firstValidPostionFlag = true;
+				var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+				map.setCenter(latlng);
+				reticleMarker.setPosition(latlng);
+				marker_locaton.latitude = position.coords.latitude;
+				marker_locaton.longitude = position.coords.longitude;
+			
+			}
+	
+	
+	
+}
+
+function geo_error(error){
+	
+	//console.log('caller: ' + caller);
+	switch(error.code)
+	{
+		case error.TIMEOUT:
+			$('#item_geoposition').text("Error: position timeout");
+			$('#map_geoposition').text("Error: position timeout");
+		break;
+		
+		default:
+			$('#item_geoposition').text("Can't get postion. Check if GPS is ON");
+			//console.log("$('#item_geoposition').text:  " + $('#item_geoposition').text());
+			$('#map_geoposition').text("Can't get postion. Check if GPS is ON");
+			//console.log("$('#map_geoposition').text:  " + $('#map_geoposition').text());
+		
+		break;
+	
+	};
+
+
+
+}
+
+// This function just adds a leading "0" to time/date components which are <10 (because there is no cross-browser way I know of to do this using the date object)
+function format_time_component(time_component)
+{
+	if(time_component<10)
+		time_component="0"+time_component;
+	else if(time_component.length<2)
+		time_component=time_component+"0";
+		
+	return time_component;
+}
+
+
+function clearOverlays() {
+  for (var i = 0; i < markersArray.length; i++ ) {
+    markersArray[i].setMap(null);
+  }
+  markersArray.length = 0;
+  
+  //remove all labels
+  //$(".labels").remove();
+}
+
+
+function plotItemsOnMap() {
+	//console.log("plotItemsOnMap called");
+	
+	//console.log(map.getZoom());
+	// check zoom first: 
+	//if (map.getZoom() < 15 ) return;
+	
+	var ne, sw;
+	var i = 0 ;
+	// get map bounds
+	if (map) {
+		ne = map.getBounds().getNorthEast();
+		sw = map.getBounds().getSouthWest();
+	}
+	else {
+		return;
+	}	
+
+	//console.log(sw.lat());
+	//console.log(sw.lng());
+	
+	//return;
+	var tx = iddb.transaction(["items_instances"], "readonly");
+	var items_store = tx.objectStore("items_instances");
+
+	var idx = items_store.index("by_lat_lon_idx");
+
+	
+			var lowerBound = [sw.lat(),sw.lng()];
+			var upperBound = [ne.lat(),ne.lng()];
+
+
+			var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+			var request = idx.openCursor(range,'next');	
+
+			request.onsuccess = function(event) {
+
+				var cursor = event.target.result;
+				
+				
+				
+				if (cursor) { // cursor is my attribute object	
+					var cursorLng  = cursor.value.ii_longitude;		
+					var cursorLat  = cursor.value.ii_latitude;
+						
+					if ( cursorLng >=sw.lng() &&  cursorLng <= ne.lng() && cursor.value.ii_status == 'active') {
+							var latlng = new google.maps.LatLng(cursorLat, cursorLng);
+							var frontend_orders = cursor.value.frontend_orders;
+							var values = cursor.value.values;
+							var frontEnd_array  = [];	
+							var itemFrontNameLabel = '';
+							var itemId = cursor.value.item_id;
+							var item_instance_id = cursor.value.item_instance_id;
+							var data_paramsObj = {};
+							
+							data_paramsObj.passed_data_1 = item_instance_id;
+							data_paramsObj.passed_data_2 = itemId;
+							data_paramsObj.goto = '141';
+							data_paramsObj.db_action = 'populate_item_form_with_data';
+							
+							
+							// calculate ii name for frontEnd:
+							for (var ii = 0; ii < values.length; ii++) {
+								if ((frontend_orders)[ii] && (frontend_orders)[ii] != -1) {
+									var subArray = [frontend_orders[ii], values[ii]];
+									frontEnd_array.push(subArray); 
+								}
+							
+							}
+							
+							frontEnd_array.sort(function(a,b) {
+								return parseInt(a[0],10) - parseInt(b[0],10);
+							});
+							
+							for (var ii = 0; ii < frontEnd_array.length; ii++) {
+								if (itemFrontNameLabel) {
+									itemFrontNameLabel = itemFrontNameLabel + ' | '  + frontEnd_array[ii][1];
+								}
+								else {
+									itemFrontNameLabel = frontEnd_array[ii][1];
+								}
+							}								
+							
+							var label_str = itemFrontNameLabel.substring(0,9); 
+
+							
+							//var marker = new google.maps.Marker({
+							var marker = new MarkerWithLabel({
+							position: latlng,
+								icon: {
+								  path: google.maps.SymbolPath.CIRCLE,
+								  scale: 10,
+								  strokeColor: "Lime" ,
+								  strokeOpacity: 0.7
+								},
+								draggable: false,
+								map: map,
+								title: 'item: ' + label_str,
+								labelContent: label_str,
+								labelAnchor: new google.maps.Point(50, 35),
+								labelClass: "labels", // the CSS class for the label
+								labelStyle: {'opacity': '0.5',
+												'width': '50px'
+											},
+											
+								customdata: data_paramsObj
+							});
+					
+							if (map.mode1 == 'edit') {
+								google.maps.event.addListener(marker, "click", 
+									function (e) {
+										fn_controller(this.customdata);
+										//data_paramsObj
+									}
+								);
+							}
+					
+					
+							markersArray.push(marker);
+					
+						i++;
+					
+					}
+	
+				
+
+				
+				
+				cursor.continue();
+				}
+				else {
+					//console.log ('items in map: ' + i);
+				}
+			}
+			
+			
+			request.onerror = function (event) {
+				console.log("indexedDB.open Error: " + event.message);
+            }
+			
+		
+
+}
+
+//############################## START OF DEALING WITH tab/browser VISIBILITY
+function getHiddenProp(){
+    var prefixes = ['webkit','moz','ms','o'];
+    
+    // if 'hidden' is natively supported just return it
+    if ('hidden' in document) return 'hidden';
+    
+    // otherwise loop over all the known prefixes until we find one
+    for (var i = 0; i < prefixes.length; i++){
+        if ((prefixes[i] + 'Hidden') in document) 
+            return prefixes[i] + 'Hidden';
+    }
+
+    // otherwise it's not supported
+    return null;
+}
+
+function isHidden() {
+    var prop = getHiddenProp();
+    if (!prop) return false;
+    
+    return document[prop];
+}
+
+// use the property name to generate the prefixed event name
+var visProp = getHiddenProp();
+if (visProp) {
+  var evtname = visProp.replace(/[H|h]idden/,'') + 'visibilitychange';
+  document.addEventListener(evtname, visChange);
+}
+
+function visChange() {
+   //var txtFld = document.getElementById('visChangeText');
+
+   //if (txtFld) {
+      if (isHidden()) {
+         //txtFld.value += "Tab Hidden!\n";
+			//console.log("Tab Hidden!\n");
+			//$('#item_geoposition').text("browser just been hidden");
+			//$('#map_geoposition').text("browser just been hidden");
+			//console.log("documnet.visibilityState: " + document.visibilityState);
+			navigator.geolocation.clearWatch(location_obj.wpid); // stop position tracking
+			location_obj = {};
+			$('#item_geoposition').text("");
+			$('#map_geoposition').text("");
+			
+		 }
+      else
+         //txtFld.value += "Tab Visible!\n";
+		 //console.log("Tab Visible!\n");
+		 
+		 if ($.isEmptyObject(location_obj)) {getItemLocation()};
+  // }
+}
+//############################## END OF VISIBILITY
+
+
+
+function fn_update_item_inst_object_to_db(item_instance_id, item_id, callback3) {
+
+	var tx = iddb.transaction(["items_instances"], "readwrite");
+	var store = tx.objectStore("items_instances");
+
+	console.log ('item_instance_id: ' + item_instance_id);
+//first get the instance which is going to be updated :
+
+	store.get(item_instance_id).onsuccess = function(event){
+
+			var being_updated_ii = event.target.result;
+
+	// create new updated (which becomes 'active') instance into db:
+
+		var ii = {};
+		
+		ii.item_instance_id = -1;
+		ii.item_id = item_id;
+		ii.unix_timestamp = (fn_timestamp());
+		ii.ii_status = "active";
+		ii.ii_gps_data = {};
+		ii.attribute_instances_ids = [];
+		ii.values = [];
+		ii.frontend_orders = [];
+
+		ii.ii_gps_data.accuracy = location_obj.accuracy;
+		ii.ii_gps_data.altitude = location_obj.altitude;			
+		ii.ii_gps_data.altitudeAccuracy = location_obj.altitudeAccuracy;
+		ii.ii_gps_data.heading = location_obj.heading;		
+		ii.ii_gps_data.speed = location_obj.speed;		
+		ii.ii_gps_data.latitude = location_obj.latitude;	
+		ii.ii_gps_data.longitude = location_obj.longitude;
+		ii.ii_latitude = being_updated_ii.ii_latitude
+		ii.ii_longitude = being_updated_ii.ii_longitude
+		ii.ii_positionPickedFrom =  being_updated_ii.ii_positionPickedFrom
+		
+
+		//var theItem_content_div = $('#theItem_content_div');
+		$('#theItem_content_div [data-params1]').each(
+			function( index ) {
+				var element = 	$(this);
+				ii.attribute_instances_ids.push(element.data('params1').attr_instance_id);
+				ii.frontend_orders.push(element.data('params1').ai_frontend_order);
+					
+					switch (element.data('params1').ai_type) //!!! may be better get attr instance from db get all attr related info needed here
+					{
+					   case "text":
+					   case "number":
+					   case "time": 
+					   
+						   ii.values.push(element.val().replace(/[^\w\s]/gi, ''));
+						   
+						   
+						   break;
+						case "date":
+							//ii.values.push([element.val().toString().slice(0,4),'-',element.val().toString().slice(4,6),'-',element.val().toString().slice(6,8)].join(''));
+							
+                            
+                            
+                            ii.values.push(element.val());
+                            
+                            
+							break;
+						case "boolean":
+							ii.values.push(+ ($(element)).is(':checked'));
+							break;
+						case "lookup":
+							//$("#DataType_ :selected").val();
+							ii.values.push($(element).find(":selected").val());
+							break;
+					   default: 
+						   //alert('Default case');
+						   break;
+					}			
+		
+			});
+		
+		// put new/updated instance into db
+		
+		store.put(ii).onsuccess = function(event){
+				
+				
+				// update instace_id according autoincrement keyID:
+				store.get(event.target.result).onsuccess = function(event){ //get it first
+				
+					var justInserted_ii = event.target.result;
+					
+
+					justInserted_ii.item_instance_id = justInserted_ii.id;
+										
+						store.put(justInserted_ii).onsuccess = function(event){ // put back to store:
+							// update old (one just been updated) item instance:
+							being_updated_ii.ii_status = 'updated';
+							
+							store.put(being_updated_ii).onsuccess = function(event){ 
+								//console.log('updated to "UPDATED"');
+							
+							}
+							
+						}
+					
+				
+				}
+			
+
+			
+		
+		}; 	
+		
+		
+	
+	} // end of success callback of  'first get the instance which is going to be updated'
+
+
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("item updated successfully");
+
+		
+		//fn_clear_itemsList();
+
+		callback3();
+
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+
+	};
+
+
+
+}
+
+
+function fn_delete_ii(item_instance_id){
+    
+    var tx = iddb.transaction(["items_instances"], "readwrite");
+    var store = tx.objectStore("items_instances");
+
+
+			store.get(item_instance_id).onsuccess = function(event){
+				var deleted_ii = event.target.result;
+				
+				deleted_ii.ii_status = "deleted";
+                deleted_ii.ii_deleted_timestamp = (fn_timestamp());
+				// put back to store:
+					store.put(deleted_ii).onsuccess = function(event){
+						console.log ('deleted');
+					}
+				
+			
+			}
+		
+
+	
+	
+	tx.oncomplete = function() {
+	  // All requests have succeeded and the transaction has committed.
+	  	console.log ("item instance marked as deleted in indexed db successfully");
+		//fn_clear_attributesList();	  
+	  	//fn_get_attributesList('1000');
+		//callback1();
+		//callback2(gotoForAttrList);
+		//callback3();	  	
+
+	};
+
+	tx.onerror = function(event) {
+		// Don't forget to handle errors!
+		console.log (event.target.wePutrrorMessage || event.target.error.name || event.target.error || event.target.errorCode);
+		//fn_clear_attributesList();		
+		//fn_get_attributesList('1000');
+		//callback1();
+		//callback2(gotoForAttrList);
+
+	};
+    
+}
+
+function fn_fillDBwithDummies(numberOfItems) {
+
+	if (numberOfItems > 0 ) {
+		
+		// create array of ais
+		var ias_array = [];
+		
+	
+		var transaction = iddb.transaction(["attributes_instances"], "readonly");
+		var objectStore = transaction.objectStore("attributes_instances");
+		var idx = objectStore.index("by_AttrId_AttrInstanceId_idx");
+		
+		//var lowerBound = ['active',0,0];
+		//var upperBound = ['active',Infinity,Infinity];
+		
+		//var range = IDBKeyRange.bound(lowerBound,upperBound);
+		
+		//var request = idx.openCursor(range,'next');
+		var attr_id;
+		var prev_attr_id;
+		
+        var counter = 0;
+        
+		var request = idx.openCursor();
+		request.onsuccess = function(event) {
+
+			var cursor = event.target.result; //? var cursor = request.result;
+			if (cursor) { // cursor is my attribute object
+					
+				 //var this_attr_instance_id = cursor.value.attr_inst_id;
+				 //var attr_id = cursor.value.attr_id;
+				 //var this_attr_ai_type = cursor.value.ai_type;
+				 //var this_attr_ai_mandatory = cursor.value.ai_mandatory;
+				 //var this_attr_ai_name = cursor.value.ai_name;
+				 //var this_attr_ai_frontend_order = cursor.value.ai_frontend_order;
+
+				//var str = cursor.value.attr_id + '|' + cursor.value.attr_inst_id + '#' 
+				//+ cursor.value.ai_name + '#' + cursor.value.ai_type + '|' +  cursor.value.ai_status
+					
+				//ias_array.push(str);	
+				if (!attr_id) { // very 1st ai
+					//console.log('attr_id: ' + cursor.value.attr_id);
+					attr_id  = cursor.value.attr_id;
+					//console.log(!attr_id);
+					//console.log('attr_id: ' + attr_id);
+					ias_array.push([attr_id,[cursor.value.attr_inst_id]]);
+					prev_attr_id = cursor.value.attr_id;
+					
+				}	
+				else {
+					attr_id  = cursor.value.attr_id;
+					if (attr_id == prev_attr_id) { //still the same attribute as previous (but different instance)
+						var arr = ias_array[ias_array.length -1][1];
+						//(ias_array[ias_array.length -1][1]).push(cursor.value.attr_inst_id);
+						arr.push(cursor.value.attr_inst_id);
+					}
+					else {//different attribute
+						ias_array.push([attr_id,[cursor.value.attr_inst_id]]);
+					}
+					prev_attr_id = cursor.value.attr_id;
+				}
+				
+				
+				
+
+			
+				
+				cursor.continue();
+				
+			}
+			else {
+				//console.log(ias_array);
+			}
+		};	
+		
+	
+	
+		transaction.oncomplete = function() {
+			
+			// create random iis:
+			
+			
+			if (ias_array.length > 0 ) {
+			
+				var ii = {};
+									
+				ii.item_instance_id = -1;
+				ii.item_id = -1;
+				ii.unix_timestamp = (fn_timestamp());
+				ii.ii_status = "active";
+				ii.ii_gps_data = {};
+				ii.attribute_instances_ids = [];
+				ii.values = [];
+				ii.frontend_orders = [];
+
+				ii.ii_gps_data.accuracy = undefined;
+				ii.ii_gps_data.altitude = undefined;		
+				ii.ii_gps_data.altitudeAccuracy = undefined;
+				ii.ii_gps_data.heading = undefined;		
+				ii.ii_gps_data.speed = undefined;
+                ii.ii_gps_data.latitude = undefined;
+                ii.ii_gps_data.longitude = undefined;
+                
+				
+				ii.ii_latitude = fn_randomValues('lat');
+				ii.ii_longitude = fn_randomValues('lng');		
+				ii.ii_positionPickedFrom = 'marker';	
+		
+				
+				for( var i=0; i < numberOfItems; i++ ) {
+					
+					// create random item instance
+					//var ii = {};
+					
+						
+						$.map( ias_array, function( attribute, index ) { // loop through attribues
+							
+							//console.log ('attrid: ' + attribute[0] + ' ais-array: ');
+							//get random attribute instance id 
+							var ai_id = attribute[1][getRandomInt(0,attribute[1].length-1)];
+                            
+								
+										var tx = iddb.transaction(["attributes_instances"], "readonly");
+										var store = tx.objectStore("attributes_instances");
+										var ai;
+								
+								
+										store.get(ai_id).onsuccess = function(event){
+											ai = event.target.result;
+									
+										}
+									
+
+								
+								
+										tx.oncomplete = function() {
+											//console.log (ai);
+											//push ai related values into item object's subArrays
+											var valueForThisAI = fn_randomValues(ai.ai_type,ai.lookup_values);
+											ii.attribute_instances_ids.push(ai_id);
+											ii.frontend_orders.push(ai.ai_frontend_order);
+											ii.values.push(valueForThisAI);
+											if (index == ias_array.length -1){ 
+												//console.log (ii);
+												//put ii to DB here:
+													var tx1 = iddb.transaction(["items_instances"], "readwrite");
+													var store1 = tx1.objectStore("items_instances");
+													store1.put(ii).onsuccess = function(event){
+
+															store1.get(event.target.result).onsuccess = function(event){
+															
+																var justInserted_ii = event.target.result;
+																
+																//update justInserted_ia :
+																justInserted_ii.item_instance_id = justInserted_ii.id;
+																justInserted_ii.item_id = justInserted_ii.id;
+																// put back to store:
+																	store1.put(justInserted_ii).onsuccess = function(event){
+																	    counter++;
+                                                                        if (counter == numberOfItems -1) {
+                                                                            $.mobile.loading( "hide" );
+                                                                        }
+                                                                    }
+																
+															
+															}
+                                                        //console.log("counter= " + counter);
+													};
+												
+												ii = {};
+												ii.item_instance_id = -1;
+												ii.item_id = -1;
+												ii.unix_timestamp = (fn_timestamp());
+												ii.ii_status = "active";
+												ii.ii_gps_data = {};
+												ii.attribute_instances_ids = [];
+												ii.values = [];
+												ii.frontend_orders = [];
+
+												ii.ii_gps_data.accuracy = undefined;
+												ii.ii_gps_data.altitude = undefined;			
+												ii.ii_gps_data.altitudeAccuracy = undefined;
+												ii.ii_gps_data.heading = undefined;		
+												ii.ii_gps_data.speed = undefined;	
+                                                ii.ii_gps_data.latitude = undefined;
+                                                ii.ii_gps_data.longitude = undefined;                                                
+												ii.ii_latitude = fn_randomValues('lat');
+												ii.ii_longitude = fn_randomValues('lng');			
+												ii.ii_positionPickedFrom = 'marker';										
+
+											}	
+								}					
+
+                                                          
+                                //if (i == numberOfItems -1) {
+                                //    $.mobile.loading( "hide" );
+                                //}	
+                                                            
+						
+						});
+
+
+
+				}
+				//console.log (ii);
+			}
+		
+        
+            
+		};
+	
+	
+	}
+
+
+}
+
+
+function fn_randomValues(type,lookupValuesArr) {
+
+// function used for filling dummy items and provide random values of given type
+	
+	switch (type) 
+		{
+			case "text":
+			
+				var text = ""; 
+				var possible = "AB CD EFG HIJ KLMN OPQR STU VWXY Zabcd efghijk lmnop qr stuv wx yz01 2345 678 9";
+
+				for( var i=0; i < (Math.floor((Math.random() * 30) + 1)); i++ )
+					text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+				return text;			
+			
+			break;
+			case "number":
+				return getRandomInt(1, 1000);
+			break;
+			case "time":
+				var h = (getRandomInt(0, 23)).toString();
+				var m = (getRandomInt(0, 60)).toString();
+				var s = (getRandomInt(0, 60)).toString();
+				
+								
+				return (h.length == 1?'0'+ h : h)
+				+ ':' + (m.length == 1?'0'+ m : m)
+				+ ':' + (s.length == 1?'0'+ s : s);
+
+			break;
+			case "date":
+				var y = (getRandomInt(2000, 2015)).toString();
+				var m = (getRandomInt(1, 12)).toString();
+				// get last day of month:
+				var endDayOfMonth = new Date(y, m, 0).getDate();
+				var d = (getRandomInt(1, endDayOfMonth)).toString();
+				var randomDate = new Date(y, m, d);	
+				return (randomDate.toJSON()).substring(0, 10);		
+
+			break;
+			case "boolean":
+				
+				return Math.random()<.5;
+			break;
+			case "lookup":
+				if (lookupValuesArr && lookupValuesArr.constructor == Array && lookupValuesArr.length > 1) {
+					return lookupValuesArr[getRandomInt(0,lookupValuesArr.length-1)][0];
+				}
+				
+				return 
+			break;
+			case 'lat': 
+				return (54 + Math.random());
+			break;
+			case 'lng':
+				return (-2.7 - Math.random());
+			
+			break;
+			default: 
+				
+			break;
+		}	
+
+
+	
+
+
+
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+function validated_time(str) {
+//http://stackoverflow.com/questions/1494671/what-is-a-javascript-regular-expression-for-matching-time-in-military-24-hour
+//  -excellent explanation of regex
+//later need to have a look to match 0-59
+    var matchedArr;
+    
+    matchedArr = str.match(/^([01]\d|2[0-3]):?([0-5]\d):?([0-5]\d)?$/);
+    
+    if(matchedArr) { //matches any valid time like 23:44:59 or 23:44 or 234459 or 2344
+        //return str;            
+        return matchedArr[1] + ':' + matchedArr[2] + ':' + (matchedArr[3] || '00');
+    
+    
+    }
+    else {// str doesn't match time at all
+    
+        return '';
+    
+    }
+    
+    
+    
+}
+
+function fn_export_db_to_csv(callback) {
+    
+    var transaction = iddb.transaction(["attributes_instances"], "readonly");
+    var objectStore = transaction.objectStore("attributes_instances");
+    var i = 0;
+	var idx = objectStore.index("by_AttrId_AttrInstanceId_idx");
+	
+	//var lowerBound = ['active',0,0];
+	//var upperBound = ['active',Infinity,Infinity];
+	
+	//var range = IDBKeyRange.bound(lowerBound,upperBound);
+	
+	var request = idx.openCursor();
+    var ais_array = [];
+    //var ai_array = [];
+    var csv_array =[];
+    var csv  = "data:text/csv;charset=utf-8,";
+    var titleArray = [];
+    
+	request.onsuccess = function(event) {
+		//console.log("request.onsuccess CALL");
+		i++;		
+		var cursor = event.target.result; //? var cursor = request.result;
+		if (cursor) { // cursor is my attribute object
+			//console.log("cursor - yes");			
+                ai_array = [];
+                
+                //ai_array.push();
+              
+              var attr_inst_id = cursor.value.attr_inst_id;
+			  //var this_attr_attr_id = cursor.value.attr_id
+			  var ai_type = cursor.value.ai_type;
+			  //var this_attr_ai_mandatory = cursor.value.ai_mandatory;
+			  var ai_name = cursor.value.ai_name;
+			  //var this_attr_ai_frontend_order = cursor.value.ai_frontend_order;
+			   var ai_status = cursor.value.ai_status;
+             
+             //ais_array.push([attr_inst_id, ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status]);
+             ais_array.push(attr_inst_id);
+            //console.log(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+            //csv_array.push(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+			titleArray.push(ai_name + ' |type:  ' + ai_type + ' |status: ' + ai_status);
+            
+			//console.log("after cursor.continue");
+			cursor.continue();
+			
+            
+		}
+		else {
+			//console.log("cursor - FINISHED");
+			//console.log("i: " + i);
+			if (i == 1) { //cursor is empty - no attributes yet
+                return 'no attrbutes';                
+			}
+    
+		}    
+    
+    }
+
+    
+    transaction.oncomplete = function() {
+        //console.log ("ais_array: " + ais_array);        
+        // now loop through items instances:
+        //by_ItemId_ItemInstId_idx
+        
+           //add common attributes titles:
+            titleArray.push('item_id');
+            titleArray.push('item_instance_id');
+            titleArray.push('status');
+            titleArray.push('positionPickedFrom');
+            titleArray.push('lat');
+            titleArray.push('lng');
+            titleArray.push('gps_accuracy');
+            titleArray.push('gps_altitude');
+            titleArray.push('gps_altitudeAccuracy');
+            titleArray.push('gps_heading');
+            titleArray.push('gps_lat');
+            titleArray.push('gps_lon');
+            titleArray.push('gps_speed');
+            titleArray.push('unix_timestamp');
+            //titleArray.push('timestamp_UTCString'); 
+            
+            //csv = csv + csv_array.join(",")+ "\n";
+            csv_array.push(titleArray);
+            
+            var transaction1 = iddb.transaction(["items_instances"], "readonly");
+            var objectStore1 = transaction1.objectStore("items_instances");
+        	i = 0;
+        	var idx1 = objectStore1.index("by_ItemId_ItemInstId_idx");
+        	
+        	//var lowerBound = ['active',0,0];
+        	//var upperBound = ['active',Infinity,Infinity];
+        	
+        	//var range = IDBKeyRange.bound(lowerBound,upperBound);
+        	
+        	var request1 = idx1.openCursor();
+            
+        	
+            request1.onsuccess = function(event) {
+                i++;		
+        		
+                
+                var cursor1 = event.target.result; //? var cursor = request.result;
+        		
+                
+                if (cursor1) { // cursor is my attribute object
+                    
+                    var csvRow = new Array(ais_array.length).join('a').split('a');
+                    //new Array(5+1).join('a').split('a');
+                    
+                    // add common atttributes:
+                    
+                        csvRow.push(cursor1.value.item_id);
+                        csvRow.push(cursor1.value.item_instance_id);
+                        csvRow.push(cursor1.value.ii_status);
+                        csvRow.push(cursor1.value.ii_positionPickedFrom);
+                        csvRow.push(cursor1.value.ii_latitude||'');
+                        csvRow.push(cursor1.value.ii_longitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.accuracy||'');
+                        csvRow.push(cursor1.value.ii_gps_data.altitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.altitudeAccuracy||'');
+                        csvRow.push(cursor1.value.ii_gps_data.heading||'');
+                        csvRow.push(cursor1.value.ii_gps_data.latitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.longitude||'');
+                        csvRow.push(cursor1.value.ii_gps_data.speed||'');
+                        csvRow.push(cursor1.value.unix_timestamp);
+                        //titleArray.push(cursor1.value.unix_timestamp.toUTCString());                    
+                    
+                    
+                    
+                    
+                    var attribute_instances_ids = cursor1.value.attribute_instances_ids;
+         		    var values = cursor1.value.values;
+                    //var index = ais_array.indexOf();
+                    $.map(attribute_instances_ids, function( attr_inst_id, index ) {
+                        var matchIndex = ais_array.indexOf(attr_inst_id);
+                        //if (i < 10) {console.log (i);}
+                        if (matchIndex||matchIndex==0) {
+                            csvRow[matchIndex] = values[index];
+                            //sTOP HERE
+                            //if (i < 10) {console.log (csvRow);}
+                            
+                        }
+                        
+                        //console.log ("index:" + index + " attribute_instances_ids.length: " + attribute_instances_ids.length);
+
+                        ///if (index == attribute_instances_ids.length-1) {
+                            //if (i < 10) {csv_array.push(csvRow.join(','));}
+                        ///    if (i < 10) {csv_array.push(csvRow);}
+                            //if (i < 10) {console.log ("csvRow: " + csvRow);}
+                        ///}
+                    });
+                    
+                    //if (i < 10) {csv_array.push(csvRow);}
+                    //if (i < 20) {csv_array.push(csvRow);}
+                 
+                    csv_array.push(csvRow); //!!!!
+                    
+                    cursor1.continue();
+    			
+                
+        		}
+        		else {
+        			//console.log("cursor - FINISHED");
+        			//console.log("i: " + i);
+        			if (i == 1) { //cursor is empty - no attributes yet
+                        return 'no items';                
+        			}
+            
+        		}       
+    
+            }
+    
+            transaction1.oncomplete = function(){
+                
+                
+                //console.log(csv_array);
+                csv_array.forEach(function(infoArray, index){
+
+                    var csvRowStr = infoArray.join(",");
+                    csv += index < csv_array.length-1 ? csvRowStr+ "\n" : csvRowStr;
+                    
+                        ///if (index == csv_array.length-1) {
+                            //console.log(csv);
+                            //return csv;
+                            //callback(csv);
+                        ///}                    
+                    
+                }); 
+                
+                    //console.log(csv);
+                    var encodedUri = encodeURI(csv);
+                    //this.setAttribute("href", encodedUri);
+                    //this.setAttribute("download", "my_data.csv");
+                    //$(this).attr('href',encodedUri);//  = encodedUri;
+                    //$(this).attr('download',"my_data.csv"); // = "my_data.csv";
+                    //$(this).trigger( "click" );
+                    //window.open(encodedUri);
+                
+                    //var windowSize = "width=" + window.innerWidth + ",height=" + window.innerHeight + ",scrollbars=no";
+                    //window.open(encodedUri, 'popup', windowSize);
+                    callback(encodedUri);  
+            };
+    
+    
+        //console.log(csv);
+    };
+    //console.log (ais_array); 
+     
+
+
+}
+
+
+function f_csv_callback(encodedUri){
+    
+    $.mobile.loading( "hide" );
+    
+    $("#b_export_db_dialogue_OK").attr('href',encodedUri);
+ 
+    
+    $("#b_export_db_dialogue_OK").attr('download','csv.csv');
+    
+    $.mobile.changePage( "#export_db_dialogue", { role: "dialog" } );
+    //console.log(encodedUri);
+    //var encodedUri = encodeURI(csvContent);
+    //var link = document.createElement("a");
+    //link.setAttribute("href", encodedUri);
+    //link.setAttribute("download", "my_data.csv");
+
+    
+}
+
+
+
+
+</script>
