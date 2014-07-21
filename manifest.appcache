@@ -121,7 +121,9 @@ themes/images/icons-png/video-white.png
 NETWORK:
 
 
-http://maps.googleapis.com/maps/api/js?key=AIzaSyB5Rhvf973ZkSxuS3lWDDAJuKgHjtpoLCA&sensor=true
+#http://maps.googleapis.com/maps/api/js?key=AIzaSyB5Rhvf973ZkSxuS3lWDDAJuKgHjtpoLCA&sensor=true
+http://maps.googleapis.com/maps/api/js?sensor=true
+http://maps.gstatic.com/intl/en_gb/mapfiles/api-3/17/8/main.js
 http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js
 
 
