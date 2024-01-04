@@ -1,4 +1,4 @@
-@import "./src/ol/ol.css";
+@import "node_modules/ol/ol.css";
 
 html,
 body {
