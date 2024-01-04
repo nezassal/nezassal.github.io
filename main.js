@@ -1,5 +1,5 @@
 import './style.css';
-import Map from '/src/ol/Map.js';
+import Map from './src/ol/Map.js';
 import OSM from './src/ol/source/OSM.js';
 import TileLayer from './src/ol/layer/Tile.js';
 import View from './src/ol/View.js';
