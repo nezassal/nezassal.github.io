@@ -75,18 +75,26 @@
                   projection: map.getView().getProjection(),
                   tracking: true
               });
-          let extent = ol.extent.createEmpty();
-
-          geolocation.on('change:accuracyGeometry', function() {
-              geolocation.getAccuracyGeometry().getExtent(extent);
+          //create a vector source to add the icon(s) to.
+          var vectorSource = new ol.source.Vector({});
+          
+          geolocation.on('change', function(evt) {
+             //save position and set map center
+             var pos = geolocation.getPosition();
+             map.getView().setCenter(pos);
+          
+             //create icon at new map center
+             var iconFeature = new ol.Feature({
+                   geometry: new ol.geom.Point(pos)  
+             });
+          
+             //add icon to vector source
+             vectorSource.addFeature(iconFeature);       
           });
           
-          zoomToExtentControl = new ol.control.ZoomToExtent({
-            extent: extent,
-            className: 'custom-zoom-extent',
-            label: '🔍'
+          var vectorLayer = new ol.layer.Vector({
+              source: vectorSource
           });
-          
         
         let pointStyle = new ol.style.Style({
               image: new ol.style.Circle({
