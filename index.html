@@ -77,15 +77,15 @@
                   tracking: true
               });
           //create a vector source to add the icon(s) to.
-          var vectorSource = new ol.source.Vector({});
+          let vectorSource = new ol.source.Vector({});
           
           geolocation.on('change', function(evt) {
              //save position and set map center
-             var pos = geolocation.getPosition();
+             let pos = geolocation.getPosition();
              map.getView().setCenter(pos);
           
              //create icon at new map center
-             var iconFeature = new ol.Feature({
+             let iconFeature = new ol.Feature({
                    geometry: new ol.geom.Point(pos)  
              });
 
@@ -96,12 +96,12 @@
             
             });
           
-          var vectorLayer = new ol.layer.Vector({
+          let vectorLayer = new ol.layer.Vector({
               source: vectorSource
           });
 
           map.addLayer(vectorLayer);
-        
+        /*
           var iconStyle = new ol.style.Style({
               image: new ol.style.Icon(({
                 anchor: [0.5, 46],
@@ -111,7 +111,7 @@
                 src: 'data/icon.png'
              }))
           });
-
+      */
 
         
         let pointStyle = new ol.style.Style({
