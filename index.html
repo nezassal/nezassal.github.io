@@ -62,7 +62,8 @@
           let map = new ol.Map({
               target: 'mapPlaceholder',
               layers: [
-                  osmLayer
+                  osmLayer,
+                vectorLayer
               ],
               view: new ol.View({
                   //Somewhere in Germany
@@ -87,14 +88,29 @@
              var iconFeature = new ol.Feature({
                    geometry: new ol.geom.Point(pos)  
              });
-          
+
+            vectorSource.clear();
              //add icon to vector source
-             vectorSource.addFeature(iconFeature);       
-          });
+             vectorSource.addFeature(iconFeature);
+
+            
+            });
           
           var vectorLayer = new ol.layer.Vector({
               source: vectorSource
           });
+
+          var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(({
+                anchor: [0.5, 46],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                opacity: 0.75,
+                src: 'data/icon.png'
+             }))
+          });
+
+
         
         let pointStyle = new ol.style.Style({
               image: new ol.style.Circle({
