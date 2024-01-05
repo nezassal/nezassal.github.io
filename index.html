@@ -89,7 +89,7 @@
                    geometry: new ol.geom.Point(pos)  
              });
 
-            //vectorSource.clear();
+            vectorSource.clear();
              //add icon to vector source
              vectorSource.addFeature(iconFeature);
 
@@ -100,6 +100,8 @@
               source: vectorSource
           });
 
+          map.addLayer(vectorLayer);
+        
           var iconStyle = new ol.style.Style({
               image: new ol.style.Icon(({
                 anchor: [0.5, 46],
