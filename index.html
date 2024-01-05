@@ -49,7 +49,18 @@
     <script>
       $(document).ready(function(){
           //$("#mapPlaceholder").height (($(window).height()} - 200);
-         let osmLayer = new ol.layer.Tile({
+        const geolocation = new Geolocation({
+          // enableHighAccuracy must be set to true to have the heading value.
+            trackingOptions: {
+                enableHighAccuracy: true,
+            },
+            projection: view.getProjection(),
+          }); 
+
+        
+        
+        
+        let osmLayer = new ol.layer.Tile({
               source: new ol.source.OSM(),
               visible: true
           });
@@ -63,7 +74,8 @@
               ],
               view: new ol.View({
                   //Somewhere in Germany
-                  center: ol.proj.fromLonLat([8.66, 48.88]),
+                  //center: ol.proj.fromLonLat([8.66, 48.88]),
+                center: geolocation.getPosition(),
                   zoom: 5
               })
           });
