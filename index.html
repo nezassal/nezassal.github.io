@@ -69,7 +69,7 @@
                   //Somewhere in Germany
                   center: ol.proj.fromLonLat([8.66, 48.88]),
                   //center: geolocation.getPosition(),
-                  zoom: 5
+                  zoom: 10
               })
           });
           let geolocation = new ol.Geolocation({
@@ -89,7 +89,7 @@
                    geometry: new ol.geom.Point(pos)  
              });
 
-            vectorSource.clear();
+            //vectorSource.clear();
              //add icon to vector source
              vectorSource.addFeature(iconFeature);
 
