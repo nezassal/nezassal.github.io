@@ -75,7 +75,17 @@
                   projection: map.getView().getProjection(),
                   tracking: true
               });
-      
+          var extent = ol.extent.createEmpty();
+
+          geolocation.on('change:accuracyGeometry', function() {
+              geolocation.getAccuracyGeometry().getExtent(extent);
+          });
+          
+          zoomToExtentControl = new ol.control.ZoomToExtent({
+            extent: extent,
+            className: 'custom-zoom-extent',
+            label: '🔍'
+          });
           let pointStyle = new ol.style.Style({
               image: new ol.style.Circle({
                   radius: 5,
