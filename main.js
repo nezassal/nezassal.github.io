@@ -33,7 +33,11 @@ $(document).ready(function(){
             projection: view.getProjection(),
           });        
 
+          geolocation.setTracking(true);
 
-  
-
+          geolocation.on('change', function () {
+                    let pos = geolocation.getPosition();
+                    map.getView().setCenter(pos);
+          
+          });
       });
