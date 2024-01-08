@@ -9,8 +9,8 @@ import View from './src/ol/View.js';
 
 const map = new ol.Map({
   layers: [
-    new ol.TileLayer({
-      source: new ol.OSM(),
+    new ol.layer.Tile({
+      source: new ol.source.OSM(),
     }),
   ],
   target: 'map',
