@@ -7,15 +7,33 @@ import TileLayer from './src/ol/layer/Tile.js';
 import View from './src/ol/View.js';
 */
 
-const map = new ol.Map({
-  layers: [
-    new ol.layer.Tile({
-      source: new ol.source.OSM(),
-    }),
-  ],
-  target: 'map',
-  view: new ol.View({
-    center: [0, 0],
-    zoom: 2,
-  }),
-});
+$(document).ready(function(){
+
+
+
+          const view = new ol.View({
+              center: [0, 0],
+              zoom: 2,
+          });
+          const map = new ol.Map({
+            layers: [
+              new ol.Tile({
+                source: new ol.source.OSM(),
+              }),
+            ],
+            target: 'mapPlaceholder',
+            view: view,
+          });
+          
+          const geolocation = new ol.Geolocation({
+            // enableHighAccuracy must be set to true to have the heading value.
+            trackingOptions: {
+              enableHighAccuracy: true,
+            },
+            projection: view.getProjection(),
+          });        
+
+
+  
+
+      });
