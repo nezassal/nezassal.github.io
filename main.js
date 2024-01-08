@@ -48,11 +48,11 @@ $(document).ready(function(){
 
           // update the HTML page when the position changes.
           geolocation.on('change', function () {
-            $('#accuracy').html(geolocation.getAccuracy() + ' [m]');
-            $('#altitude').html(geolocation.getAltitude() + ' [m]');
-            $('#altitudeAccuracy').html(geolocation.getAltitudeAccuracy() + ' [m]');
-            $('#heading').html(geolocation.getHeading() + ' [rad]');
-            $('#speed').html(geolocation.getSpeed() + ' [m/s]');
+            $("#accuracy").html(geolocation.getAccuracy() + ' [m]');
+            $("#altitude").html(geolocation.getAltitude() + ' [m]');
+            $("#altitudeAccuracy").html(geolocation.getAltitudeAccuracy() + ' [m]');
+            $("#heading").html(geolocation.getHeading() + ' [rad]');
+            $("#speed").html(geolocation.getSpeed() + ' [m/s]');
           });
 
           const accuracyFeature = new ol.Feature();
