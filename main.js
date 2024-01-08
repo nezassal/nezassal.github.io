@@ -48,11 +48,11 @@ $(document).ready(function(){
 
           // update the HTML page when the position changes.
           geolocation.on('change', function () {
-            el('accuracy').innerText = geolocation.getAccuracy() + ' [m]';
-            el('altitude').innerText = geolocation.getAltitude() + ' [m]';
-            el('altitudeAccuracy').innerText = geolocation.getAltitudeAccuracy() + ' [m]';
-            el('heading').innerText = geolocation.getHeading() + ' [rad]';
-            el('speed').innerText = geolocation.getSpeed() + ' [m/s]';
+            $(#'accuracy').innerText = geolocation.getAccuracy() + ' [m]';
+            $(#'altitude').innerText = geolocation.getAltitude() + ' [m]';
+            $(#'altitudeAccuracy').innerText = geolocation.getAltitudeAccuracy() + ' [m]';
+            $(#'heading').innerText = geolocation.getHeading() + ' [rad]';
+            $(#'speed').innerText = geolocation.getSpeed() + ' [m/s]';
           });
 
           const accuracyFeature = new ol.Feature();
@@ -81,7 +81,7 @@ $(document).ready(function(){
             positionFeature.setGeometry(coordinates ? new ol.geom.Point(coordinates) : null);
           });
           
-          new VectorLayer({
+          new ol.layer.Vector({
             map: map,
             source: new ol.source.Vector({
               features: [accuracyFeature, positionFeature],
