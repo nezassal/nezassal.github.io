@@ -5,6 +5,17 @@ import Map from './src/ol/Map.js';
 import OSM from './src/ol/source/OSM.js';
 import TileLayer from './src/ol/layer/Tile.js';
 import View from './src/ol/View.js';
+
+import Feature from 'ol/Feature.js';
+import Geolocation from 'ol/Geolocation.js';
+import Map from 'ol/Map.js';
+import Point from 'ol/geom/Point.js';
+import View from 'ol/View.js';
+import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style.js';
+import {OSM, Vector as VectorSource} from 'ol/source.js';
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
+
+
 */
 
 $(document).ready(function(){
@@ -21,7 +32,7 @@ $(document).ready(function(){
                 source: new ol.source.OSM(),
               }),
             ],
-            target: 'mapPlaceholder',
+            target: 'map',
             view: view,
           });
           
