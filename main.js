@@ -15,15 +15,3 @@ const map = new Map({
     zoom: 2,
   }),
 });
-
-document.getElementById('zoom-out').onclick = function () {
-  const view = map.getView();
-  const zoom = view.getZoom();
-  view.setZoom(zoom - 1);
-};
-
-document.getElementById('zoom-in').onclick = function () {
-  const view = map.getView();
-  const zoom = view.getZoom();
-  view.setZoom(zoom + 1);
-};
