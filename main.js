@@ -62,13 +62,13 @@ $(document).ready(function(){
           
           const positionFeature = new ol.Feature();
           positionFeature.setStyle(
-            new ol.Style.Style({
-              image: new ol.Style.Circle({
+            new ol.style.Style({
+              image: new ol.style.Circle({
                 radius: 6,
-                fill: new ol.Style.Fill({
+                fill: new ol.style.Fill({
                   color: '#3399CC',
                 }),
-                stroke: new ol.Style.Stroke({
+                stroke: new ol.style.Stroke({
                   color: '#fff',
                   width: 2,
                 }),
