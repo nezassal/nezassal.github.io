@@ -28,7 +28,7 @@ $(document).ready(function(){
           });
           const map = new ol.Map({
             layers: [
-              new ol.layer.TileLayer({
+              new ol.layer.Tile({
                 source: new ol.source.OSM(),
               }),
             ],
