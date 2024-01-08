@@ -1,4 +1,6 @@
 /*
+see:
+https://stackoverflow.com/questions/77507865/openlayers-color-space-lchuv-js-not-included-in-v8-2-download
 import Map from './src/ol/Map.js';
 import OSM from './src/ol/source/OSM.js';
 import TileLayer from './src/ol/layer/Tile.js';
