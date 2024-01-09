@@ -20,6 +20,7 @@ import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 
 $(document).ready(function(){
 
+          var extent = ol.extent.createEmpty();
 
 
           const view = new ol.View({
@@ -27,6 +28,11 @@ $(document).ready(function(){
               zoom: 2,
           });
           const map = new ol.Map({
+            controls: defaultControls().extend([
+              new ZoomToExtent({
+                extent: extent,
+              }),
+            ]),
             layers: [
               new ol.layer.Tile({
                 source: new ol.source.OSM(),
@@ -53,11 +59,13 @@ $(document).ready(function(){
             $("#altitudeAccuracy").html(geolocation.getAltitudeAccuracy() + ' [m]');
             $("#heading").html(geolocation.getHeading() + ' [rad]');
             $("#speed").html(geolocation.getSpeed() + ' [m/s]');
+                    
           });
 
           const accuracyFeature = new ol.Feature();
           geolocation.on('change:accuracyGeometry', function () {
             accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+                    geolocation.getAccuracyGeometry().getExtent(extent);
           });
           
           const positionFeature = new ol.Feature();
