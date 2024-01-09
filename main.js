@@ -28,8 +28,8 @@ $(document).ready(function(){
               zoom: 2,
           });
           const map = new ol.Map({
-            controls: defaultControls().extend([
-              new ZoomToExtent({
+            controls: ol.control.defauls().extend([
+              new ol.control.ZoomToExtent({
                 extent: extent,
               }),
             ]),
