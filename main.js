@@ -31,6 +31,8 @@ $(document).ready(function(){
             controls: ol.control.defaults.defaults().extend([
               new ol.control.ZoomToExtent({
                 extent: extent,
+                      className: 'custom-zoom-extent',
+                      label: '🔍'
               }),
             ]),
             layers: [
