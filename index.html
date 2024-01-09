@@ -18,16 +18,11 @@
     
     <style type="text/css">
 
-  
-      .map {
+       .map {
           height: 400px;
           width: 100%;
       }
         
-      /* #mapPlaceholder { width: 100%; height: 100%; padding: 0;} 
-      #mapPlaceholder { height: 100px;} */
-
-       
     </style>
     
   </head>
@@ -58,92 +53,6 @@
     
     <script type="module" src="main.js"></script>
     
-    <!--
-    <script>
-      $(document).ready(function(){
-          //$("#mapPlaceholder").height (($(window).height()} - 200);
     
-        
-        
-        let osmLayer = new ol.layer.Tile({
-              source: new ol.source.OSM(),
-              visible: true
-          });
-      
-          //let vectorLayer;
-      
-          let map = new ol.Map({
-              target: 'mapPlaceholder',
-              layers: [
-                  osmLayer
-                //vectorLayer
-              ],
-              view: new ol.View({
-                  //Somewhere in Germany
-                  center: ol.proj.fromLonLat([8.66, 48.88]),
-                  //center: geolocation.getPosition(),
-                  zoom: 10
-              })
-          });
-          let geolocation = new ol.Geolocation({
-                  projection: map.getView().getProjection(),
-                  tracking: true
-              });
-          //create a vector source to add the icon(s) to.
-          let vectorSource = new ol.source.Vector({});
-          
-          geolocation.on('change', function(evt) {
-             //save position and set map center
-             let pos = geolocation.getPosition();
-             map.getView().setCenter(pos);
-          
-             //create icon at new map center
-             let iconFeature = new ol.Feature({
-                   geometry: new ol.geom.Point(pos)  
-             });
-
-            vectorSource.clear();
-             //add icon to vector source
-             vectorSource.addFeature(iconFeature);
-
-            
-            });
-          
-          let vectorLayer = new ol.layer.Vector({
-              source: vectorSource
-          });
-
-          map.addLayer(vectorLayer);
-        /*
-          var iconStyle = new ol.style.Style({
-              image: new ol.style.Icon(({
-                anchor: [0.5, 46],
-                anchorXUnits: 'fraction',
-                anchorYUnits: 'pixels',
-                opacity: 0.75,
-                src: 'data/icon.png'
-             }))
-          });
-      */
-
-        
-        let pointStyle = new ol.style.Style({
-              image: new ol.style.Circle({
-                  radius: 5,
-                  fill: null,
-                  stroke: new ol.style.Stroke({color: 'red', width: 1})
-              })
-          });
-          let styleFunction = function(feature) {
-              return pointStyle;
-          };
-      
-          //TODO: add code here
-      
-      });
-
-    </script>
-
-    -->
   </body>
 </html>
