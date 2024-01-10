@@ -53,7 +53,11 @@ $(document).ready(function(){
           });        
 
           geolocation.setTracking(true);
-
+          //let pos = geolocation.getPosition();
+          //set intial position
+          
+          map.getView().setCenter(geolocation.getPosition());
+          
           // update the HTML page when the position changes.
           geolocation.on('change', function () {
             $("#accuracy").html(geolocation.getAccuracy() + ' [m]');
