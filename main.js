@@ -33,7 +33,7 @@ $(document).ready(function(){
                 extent: extent,
                       //className: 'custom-zoom-extent',
                       //label: '🔍'
-                        label: '4'
+                        label: '5'
               }),
             ]),
             layers: [
@@ -102,7 +102,7 @@ $(document).ready(function(){
             if (isItFirstGeolocationChange)  {
                     if (coordinates) {
                               view.setCenter(coordinates);
-                              isItFirstGeolocationChange - false;
+                              isItFirstGeolocationChange = false;
                     }
                       
             }         
