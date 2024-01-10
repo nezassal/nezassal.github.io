@@ -27,7 +27,7 @@ $(document).ready(function(){
               center: [0, 0],
               zoom: 2,
           });
-          const map = new ol.Map({
+          let map = new ol.Map({
             controls: ol.control.defaults.defaults().extend([
               new ol.control.ZoomToExtent({
                 extent: extent,
