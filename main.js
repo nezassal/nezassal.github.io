@@ -23,7 +23,7 @@ $(document).ready(function(){
           var extent = ol.extent.createEmpty();
 
 
-          const view = new ol.View({
+          let view = new ol.View({
               center: [0, 0],
               zoom: 2,
           });
@@ -55,8 +55,9 @@ $(document).ready(function(){
           geolocation.setTracking(true);
           //let pos = geolocation.getPosition();
           //set intial position
-          
           map.getView().setCenter(geolocation.getPosition());
+          //view.centerOn(point.getCoordinates(), size, [570, 500]);
+
           
           // update the HTML page when the position changes.
           geolocation.on('change', function () {
