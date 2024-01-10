@@ -33,7 +33,7 @@ $(document).ready(function(){
                 extent: extent,
                       //className: 'custom-zoom-extent',
                       //label: '🔍'
-                        label: '5'
+                        label: '◉'
               }),
             ]),
             layers: [
