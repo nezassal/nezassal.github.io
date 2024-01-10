@@ -23,16 +23,17 @@ $(document).ready(function(){
           var extent = ol.extent.createEmpty();
 
 
-          let view = new ol.View({
+          const view = new ol.View({
               center: [0, 0],
               zoom: 2,
           });
-          let map = new ol.Map({
+          const map = new ol.Map({
             controls: ol.control.defaults.defaults().extend([
               new ol.control.ZoomToExtent({
                 extent: extent,
                       //className: 'custom-zoom-extent',
-                      label: '🔍'
+                      //label: '🔍'
+                        label: 'o'
               }),
             ]),
             layers: [
@@ -53,9 +54,10 @@ $(document).ready(function(){
           });        
 
           geolocation.setTracking(true);
-          //let pos = geolocation.getPosition();
+          let pos = geolocation.getPosition();
           //set intial position
-          map.getView().setCenter(geolocation.getPosition());
+          //map.getView().setCenter(pos);
+          view.setCenter(pos);
           //view.centerOn(point.getCoordinates(), size, [570, 500]);
 
           
