@@ -21,7 +21,7 @@ import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 $(document).ready(function(){
 
           var extent = ol.extent.createEmpty();
-
+          var isItFirstGeolocationChange = true;
 
           const view = new ol.View({
               center: [0, 0],
@@ -33,7 +33,7 @@ $(document).ready(function(){
                 extent: extent,
                       //className: 'custom-zoom-extent',
                       //label: '🔍'
-                        label: '3'
+                        label: '4'
               }),
             ]),
             layers: [
@@ -55,8 +55,8 @@ $(document).ready(function(){
 
           geolocation.setTracking(true);
           
-          let pos = geolocation.getPosition();
-          console.log(pos);
+          //let pos = geolocation.getPosition();
+          //console.log(pos);
           //geolocation.getAccuracyGeometry().getExtent(extent);
           //set intial position
           //map.getView().setCenter(pos);
@@ -99,6 +99,13 @@ $(document).ready(function(){
           geolocation.on('change:position', function () {
             const coordinates = geolocation.getPosition();
             positionFeature.setGeometry(coordinates ? new ol.geom.Point(coordinates) : null);
+            if (isItFirstGeolocationChange)  {
+                    if (coordinates) {
+                              view.setCenter(coordinates);
+                              isItFirstGeolocationChange - false;
+                    }
+                      
+            }         
           });
           
           new ol.layer.Vector({
