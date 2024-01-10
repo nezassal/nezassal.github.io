@@ -33,7 +33,7 @@ $(document).ready(function(){
                 extent: extent,
                       //className: 'custom-zoom-extent',
                       //label: '🔍'
-                        label: 'o'
+                        label: '1'
               }),
             ]),
             layers: [
@@ -55,6 +55,7 @@ $(document).ready(function(){
 
           geolocation.setTracking(true);
           let pos = geolocation.getPosition();
+          geolocation.getAccuracyGeometry().getExtent(extent);
           //set intial position
           //map.getView().setCenter(pos);
           view.setCenter(pos);
