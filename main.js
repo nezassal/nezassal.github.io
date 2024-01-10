@@ -102,7 +102,7 @@ $(document).ready(function(){
             if (isItFirstGeolocationChange)  {
                     if (coordinates) {
                               view.setCenter(coordinates);
-                              view.setZoom(20);
+                              view.setZoom(15);
                               isItFirstGeolocationChange = false;
                     }
                       
