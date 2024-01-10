@@ -33,7 +33,7 @@ $(document).ready(function(){
                 extent: extent,
                       //className: 'custom-zoom-extent',
                       //label: '🔍'
-                        label: '2'
+                        label: '3'
               }),
             ]),
             layers: [
@@ -54,12 +54,13 @@ $(document).ready(function(){
           });        
 
           geolocation.setTracking(true);
+          
           let pos = geolocation.getPosition();
-          cosnole.log(pos);
+          console.log(pos);
           //geolocation.getAccuracyGeometry().getExtent(extent);
           //set intial position
           //map.getView().setCenter(pos);
-          view.setCenter(pos);
+          //view.setCenter(pos);
           //view.centerOn(point.getCoordinates(), size, [570, 500]);
 
           
