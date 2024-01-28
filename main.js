@@ -20,27 +20,21 @@ import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 /*
 function fn_initDatabase() {
      try {
-            var request = window.indexedDB.open("gazetteer", 1);
+            const request = window.indexedDB.open("gazetteer", 1);
             request.onsuccess = function (event) {
                 iddb = request.result;
                 //PrintDBInformation(db);
                 console.log ("idb created or opened successfully");
-                //iddb.close();
-                //fn_ReBuild_item_form(); //build item from based on attributes in DB
             }
             request.onerror = function (event) {
                 console.log("indexedDB.open Error: " + event.message);
             }
      
             request.onupgradeneeded = function(event) {
-
-                const db = event.target.result;
-                
-                //db.deleteObjectStore("attributes_instances");
-                //db.deleteObjectStore("items_instances");
-                
-                const attributes_instances = db.createObjectStore("attributes_instances", { keyPath: 'id', autoIncrement: true });
-                var items_instances = db.createObjectStore("items_instances", { keyPath: 'id', autoIncrement: true });
+                    const db = event.target.result;
+                    const gazetter = db.createObjectStore("gazetter", { keyPath: 'id', autoIncrement: true });
+                     //
+                    const idx_by_id
                 
                 //this index used to get list of latest attribute_instances to build itemForm and display list of attributes on attributes form
                 var byStatus_Order_AttrId_idx = attributes_instances.createIndex('byStatus_Order_AttrId_idx', ['ai_status','ai_order','attr_id','attr_inst_id'], { unique: true });
