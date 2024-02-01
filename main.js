@@ -17,7 +17,7 @@ import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 
 
 */
-/*
+///*
 function fn_initDatabase() {
      try {
             const request = window.indexedDB.open("gazetteer", 1);
@@ -33,29 +33,8 @@ function fn_initDatabase() {
             request.onupgradeneeded = function(event) {
                     const db = event.target.result;
                     const gazetter = db.createObjectStore("gazetter", { keyPath: 'id', autoIncrement: true });
-                     //
-                    const idx_by_id
-                
-                //this index used to get list of latest attribute_instances to build itemForm and display list of attributes on attributes form
-                var byStatus_Order_AttrId_idx = attributes_instances.createIndex('byStatus_Order_AttrId_idx', ['ai_status','ai_order','attr_id','attr_inst_id'], { unique: true });
-                //this index used to get all instances of one attribute:
-                var by_AttrId_AttrInstanceId_idx = attributes_instances.createIndex('by_AttrId_AttrInstanceId_idx', ['attr_id','attr_inst_id'], { unique: true });
-                
-                
-                // index used to get list of 'active' item_instances
-                var by_Status_ItemId_ItemInstId_idx = items_instances.createIndex('by_Status_ItemId_ItemInstId_idx',['ii_status','item_id','item_instance_id'], {unique: true })
-                
-                //index to list all instances of one item
-                var by_ItemId_ItemInstId_idx = items_instances.createIndex('by_ItemId_ItemInstId_idx',['item_id','item_instance_id'], {unique: true })
-                
-                //index for searching items based on values of item (tags)
-                
-                var by_ItemValuesArray_idx = items_instances.createIndex('Iby_ItemValuesArray_idx','values', {unique: false, multiEntry:true })
-                
-                // geo index
-                
-                var by_lat_lon_idx = items_instances.createIndex('by_lat_lon_idx',['ii_latitude','ii_longitude'], {unique: false})
-                
+                    const idx_by_id = gazetter.createIndex('idx_by_id', ['id'], { unique: true });
+               
             };     
      
      
@@ -67,7 +46,7 @@ function fn_initDatabase() {
      }    
 } 
 
-*/
+//*/
 $(document).ready(function(){
 
           var extent = ol.extent.createEmpty();
