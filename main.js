@@ -145,7 +145,7 @@ $(document).ready(function(){
             }),
           });
 
-
+     fn_initDatabase();
 
           
           
