@@ -17,7 +17,7 @@ import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
 
 
 */
-///*
+
 function fn_initDatabase() {
      try {
             const request = window.indexedDB.open("gazetteer", 1);
@@ -45,8 +45,13 @@ function fn_initDatabase() {
                return;
      }    
 } 
+fn_load_csv_into_db () {
 
-//*/
+
+
+}
+
+
 $(document).ready(function(){
 
           var extent = ol.extent.createEmpty();
